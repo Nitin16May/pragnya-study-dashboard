@@ -1,107 +1,263 @@
 // ==============================================================================
 // PRAGNYA ICSE 10TH - MIRACULOUS LADYBUG DATA CONFIG & SAMPLE DATA
+// Exact ICSE Grade 10 Curriculum with Computer Applications as Group III Optional
 // ==============================================================================
 
 export const ICSE_SUBJECTS = [
-  {
-    id: 'mathematics',
-    name: 'Mathematics',
-    group: 'Group II',
-    color: '#E51A4C', // Ladybug Crimson
-    badgeBg: 'rgba(229, 26, 76, 0.15)',
-    icon: 'calculator',
-    defaultMaxMarks: 80,
-    chapters: ['GST & Banking', 'Quadratic Equations', 'Matrices', 'Arithmetic Progression', 'Similarity', 'Circles', 'Trigonometry', 'Mensuration', 'Statistics & Ogives', 'Probability']
-  },
-  {
-    id: 'physics',
-    name: 'Physics',
-    group: 'Science (Paper 1)',
-    color: '#00D2D3', // Miraculous Cyan
-    badgeBg: 'rgba(0, 210, 211, 0.15)',
-    icon: 'zap',
-    defaultMaxMarks: 80,
-    chapters: ['Force, Work, Power & Energy', 'Light: Refraction at Plane Surfaces', 'Refraction through Lenses', 'Spectrum', 'Sound & Echoes', 'Current Electricity & Household Circuits', 'Electromagnetism', 'Calorimetry', 'Radioactivity']
-  },
-  {
-    id: 'chemistry',
-    name: 'Chemistry',
-    group: 'Science (Paper 2)',
-    color: '#FF9F43', // Miraculous Orange
-    badgeBg: 'rgba(255, 159, 67, 0.15)',
-    icon: 'flask-conical',
-    defaultMaxMarks: 80,
-    chapters: ['Periodic Properties', 'Chemical Bonding', 'Acids, Bases & Salts', 'Analytical Chemistry', 'Mole Concept & Stoichiometry', 'Electrolysis', 'Metallurgy', 'Study of Compounds (HCl, NH3, HNO3, H2SO4)', 'Organic Chemistry']
-  },
-  {
-    id: 'biology',
-    name: 'Biology',
-    group: 'Science (Paper 3)',
-    color: '#10AC84', // Plagg Emerald
-    badgeBg: 'rgba(16, 172, 132, 0.15)',
-    icon: 'dna',
-    defaultMaxMarks: 80,
-    chapters: ['Cell Cycle & Cell Division', 'Genetics & Mendel Laws', 'Absorption by Roots', 'Transpiration', 'Photosynthesis', 'Circulatory System', 'Excretory System', 'Nervous System & Sense Organs', 'Endocrine System', 'Reproductive System', 'Pollution']
-  },
+  // GROUP I: COMPULSORY SUBJECTS
   {
     id: 'english-language',
     name: 'English Language',
-    group: 'Group I (Paper 1)',
+    boardGroup: 'Group I (Compulsory)',
+    paper: 'Paper 1',
     color: '#5F27CD', // Master Fu Violet
     badgeBg: 'rgba(95, 39, 205, 0.15)',
     icon: 'file-text',
     defaultMaxMarks: 80,
-    chapters: ['Essay / Composition Writing', 'Letter Writing (Formal & Informal)', 'Notice & Email Writing', 'Unseen Comprehension & Summary', 'Grammar & Transformations']
+    chapters: [
+      'Composition / Essay Writing (Narrative, Descriptive, Argumentative, Story)',
+      'Letter Writing (Formal & Informal Letters)',
+      'Notice & Email Writing',
+      'Unseen Comprehension Passage & Summary Writing',
+      'Functional Grammar: Prepositions & Phrasal Verbs',
+      'Functional Grammar: Tenses & Verb Forms',
+      'Functional Grammar: Transformation of Sentences'
+    ]
   },
   {
     id: 'english-literature',
     name: 'English Literature',
-    group: 'Group I (Paper 2)',
+    boardGroup: 'Group I (Compulsory)',
+    paper: 'Paper 2',
     color: '#9B59B6', // Rose Amethyst
     badgeBg: 'rgba(155, 89, 182, 0.15)',
     icon: 'book-open',
     defaultMaxMarks: 80,
-    chapters: ['Julius Caesar - Act III', 'Julius Caesar - Act IV', 'Julius Caesar - Act V', 'Treasure Trove - Poems', 'Treasure Trove - Short Stories']
+    chapters: [
+      'Julius Caesar: Act III Scene 1 (Caesar Assassination)',
+      'Julius Caesar: Act III Scene 2 (Funeral Speeches - Antony & Brutus)',
+      'Julius Caesar: Act III Scene 3 (Cinna the Poet)',
+      'Julius Caesar: Act IV (Scenes 1-3: Quarrel Scene)',
+      'Julius Caesar: Act V (Scenes 1-5: Battle of Philippi & Resolution)',
+      'Treasure Trove Poems: Daffodils, The Patriot, Abou Ben Adhem, Nine Gold Medals',
+      'Treasure Trove Stories: An Angel in Disguise, The Little Match Girl, The Blue Bead, My Greatest Olympic Prize'
+    ]
   },
   {
     id: 'hindi',
     name: 'Hindi',
-    group: 'Group I (Second Language)',
+    boardGroup: 'Group I (Compulsory)',
+    paper: 'Second Language',
     color: '#FF6B6B', // Coral Pink
     badgeBg: 'rgba(255, 107, 107, 0.15)',
     icon: 'languages',
     defaultMaxMarks: 80,
-    chapters: ['Sahitya Sagar - Gadya Sankalan', 'Sahitya Sagar - Kavya Sankalan', 'Ekanki Sanchay', 'Vyakaran (Grammar)', 'Prabandh & Patra Lekhan']
+    chapters: [
+      'Sahitya Sagar (Gadya): Baat Athanni Ki, Kaki, Mahayagya Ka Puraskar, Netaji Ka Chashma',
+      'Sahitya Sagar (Gadya): Apna Apna Bhagya, Bade Ghar Ki Beti, Bhedein Aur Bhediye',
+      'Sahitya Sagar (Kavya): Saakhi (Kabir), Vinay Ke Pad (Tulsidas), Megh Aaye',
+      'Sahitya Sagar (Kavya): Sur Ke Pad, Vinay Ke Pad, Chalna Hamara Kaam Hai',
+      'Ekanki Sanchay: Sanskar Aur Bhavna, Bahu Ki Vida, Sukhi Dali, Deepdan',
+      'Vyakaran: Vilom, Paryayvachi, Bhavvachak Sangya, Muhavare, Vakya Shudhi',
+      'Rachna: Nibandh Lekhan & Patra Lekhan (Formal/Informal)'
+    ]
   },
   {
     id: 'history-civics',
     name: 'History & Civics',
-    group: 'H.C.G. (Paper 1)',
+    boardGroup: 'Group I (Compulsory)',
+    paper: 'H.C.G. Paper 1',
     color: '#EE5253', // Scarlet Red
     badgeBg: 'rgba(238, 82, 83, 0.15)',
     icon: 'landmark',
     defaultMaxMarks: 80,
-    chapters: ['First War of Independence (1857)', 'Early Nationalists & Assertives', 'Muslim League & Gandhian Era', 'Quit India & Independence', 'First & Second World Wars', 'United Nations & NAM', 'Union Parliament', 'President & Prime Minister', 'Supreme Court & High Courts']
+    chapters: [
+      'Civics: The Union Parliament (Lok Sabha & Rajya Sabha)',
+      'Civics: The President & Vice-President',
+      'Civics: Prime Minister & Council of Ministers',
+      'Civics: The Supreme Court',
+      'Civics: The High Courts & Subordinate Courts (Lok Adalats)',
+      'History: The First War of Independence (1857)',
+      'History: Growth of Nationalism & Early Nationalists',
+      'History: Assertive Nationalism & Partition of Bengal',
+      'History: Muslim League & Lucknow Pact',
+      'History: Gandhian Era & National Movement (Non-Cooperation to Quit India)',
+      'History: Forward Bloc, INA, Subhas Chandra Bose & Independence Act 1947',
+      'History: First World War & Second World War',
+      'History: United Nations, Major Agencies & Non-Aligned Movement (NAM)'
+    ]
   },
   {
     id: 'geography',
     name: 'Geography',
-    group: 'H.C.G. (Paper 2)',
+    boardGroup: 'Group I (Compulsory)',
+    paper: 'H.C.G. Paper 2',
     color: '#0ABDE3', // Marine Blue
     badgeBg: 'rgba(10, 189, 227, 0.15)',
     icon: 'globe',
     defaultMaxMarks: 80,
-    chapters: ['Topographical Maps (Survey of India)', 'Map of India Location Work', 'Climate of India', 'Soils of India', 'Natural Vegetation', 'Water Resources & Irrigation', 'Mineral & Energy Resources', 'Agriculture in India', 'Manufacturing Industries', 'Transport', 'Waste Management']
+    chapters: [
+      'Topographical Maps: Interpretation of Survey Sheets (G43S7/G43S10)',
+      'Map of India: Mountains, Rivers, Plains, Latitudes, Mineral Distribution',
+      'Climate of India: Monsoon Mechanisms, Seasons & Rainfall Distribution',
+      'Soils of India: Alluvial, Black, Red & Laterite Soils + Soil Erosion & Conservation',
+      'Natural Vegetation of India: Tropical Evergreen, Deciduous, Desert & Mangrove',
+      'Water Resources: Irrigation Methods (Wells, Canals, Tanks, Drip/Sprinkler)',
+      'Mineral & Energy Resources: Iron, Bauxite, Manganese + Coal, Petroleum, Solar/Wind',
+      'Agriculture in India: Food Crops (Rice, Wheat, Millets, Pulses)',
+      'Agriculture in India: Cash & Beverage Crops (Sugarcane, Cotton, Tea, Coffee)',
+      'Manufacturing Industries: Agro-Based (Textiles, Sugar) & Mineral-Based (Iron & Steel)',
+      'Transport in India: Roadways, Railways, Airways & Waterways (Advantages/Disadvantages)',
+      'Waste Management: Impact, Methods of Disposal (Dumping, Composting, Incineration)'
+    ]
+  },
+
+  // GROUP II: MATHEMATICS & SCIENCES
+  {
+    id: 'mathematics',
+    name: 'Mathematics',
+    boardGroup: 'Group II',
+    paper: 'Mathematics',
+    color: '#E51A4C', // Ladybug Crimson
+    badgeBg: 'rgba(229, 26, 76, 0.15)',
+    icon: 'calculator',
+    defaultMaxMarks: 80,
+    chapters: [
+      'Commercial Mathematics: Goods and Services Tax (GST)',
+      'Commercial Mathematics: Banking (Recurring Deposit Accounts)',
+      'Commercial Mathematics: Shares and Dividends',
+      'Algebra: Linear Inequations in One Variable',
+      'Algebra: Quadratic Equations (Factorisation & Formula)',
+      'Algebra: Quadratic Word Problems (Speed, Time, Geometry)',
+      'Algebra: Ratio and Proportion (Componendo & Dividendo)',
+      'Algebra: Remainder and Factor Theorems',
+      'Algebra: Matrices (Addition, Subtraction, Multiplication)',
+      'Algebra: Arithmetic Progression (nth term & Sum of n terms)',
+      'Coordinate Geometry: Reflection (x-axis, y-axis, origin, invariant points)',
+      'Coordinate Geometry: Section and Mid-Point Formula',
+      'Coordinate Geometry: Equation of a Straight Line (Slope & Intercepts)',
+      'Geometry: Similarity of Triangles (Scale Factor & Maps)',
+      'Geometry: Circles (Angle & Tangent Properties, Intersecting Chords)',
+      'Mensuration: Cylinder, Cone, Sphere & Combination of Solids',
+      'Trigonometry: Trigonometric Identities & Proofs',
+      'Trigonometry: Heights and Distances (Angle of Elevation & Depression)',
+      'Statistics: Mean, Median, Mode (Histogram, Ogives & Quartiles)',
+      'Probability: Single Event Problems (Cards, Coins, Dice)'
+    ]
   },
   {
+    id: 'physics',
+    name: 'Physics',
+    boardGroup: 'Group II (Science)',
+    paper: 'Science Paper 1',
+    color: '#00D2D3', // Miraculous Cyan
+    badgeBg: 'rgba(0, 210, 211, 0.15)',
+    icon: 'zap',
+    defaultMaxMarks: 80,
+    chapters: [
+      'Force, Work, Power & Energy: Turning Effect, Moments & Couples',
+      'Force, Work, Power & Energy: Uniform Circular Motion & Centripetal Force',
+      'Force, Work, Power & Energy: Work Done, Kinetic & Potential Energy, Conservation',
+      'Machines: Technical Terms, Lever Classes, Pulley Systems (VR, MA, Efficiency)',
+      'Refraction of Light at Plane Surfaces: Laws, Refractive Index, Real/Apparent Depth',
+      'Refraction of Light: Total Internal Reflection & Critical Angle (Prisms)',
+      'Refraction through Lenses: Convex & Concave Ray Diagrams, Sign Convention, Lens Formula',
+      'Spectrum: Dispersion through Prism, Electromagnetic Spectrum, Ultraviolet & Infrared',
+      'Sound: Reflection of Sound Waves, Echoes & Sonar Calculations',
+      'Sound: Natural, Damped, Forced Vibrations & Resonance',
+      'Current Electricity: Ohm’s Law, Resistance, Factors Affecting Resistance, EMF & Terminal Voltage',
+      'Current Electricity: Resistors in Series & Parallel, Internal Resistance',
+      'Household Circuits: Live, Neutral, Earth, Fuses, Switches, Miniature Circuit Breakers',
+      'Electromagnetism: Oersted’s Experiment, Right Hand Thumb Rule, Solenoids, Fleming’s Left Hand Rule',
+      'Calorimetry: Heat Capacity, Specific Heat Capacity, Principle of Mixtures & Calculations',
+      'Calorimetry: Latent Heat & Specific Latent Heat of Fusion of Ice',
+      'Radioactivity: Atomic Structure, Alpha, Beta & Gamma Radiations (Properties & Hazards)',
+      'Radioactivity: Nuclear Fission & Fusion, Background Radiations'
+    ]
+  },
+  {
+    id: 'chemistry',
+    name: 'Chemistry',
+    boardGroup: 'Group II (Science)',
+    paper: 'Science Paper 2',
+    color: '#FF9F43', // Miraculous Orange
+    badgeBg: 'rgba(255, 159, 67, 0.15)',
+    icon: 'flask-conical',
+    defaultMaxMarks: 80,
+    chapters: [
+      'Periodic Properties: Atomic Size, Ionisation Potential, Electron Affinity, Electronegativity',
+      'Chemical Bonding: Electrovalent, Covalent & Coordinate Bonding (Lewis Dot Structures)',
+      'Acids, Bases and Salts: Definitions, Properties, Preparation of Salts & Action of Heat',
+      'Analytical Chemistry: Action of NaOH & NH4OH on Metallic Salt Solutions (Precipitate Colors)',
+      'Mole Concept & Stoichiometry: Gay-Lussac’s Law, Avogadro’s Law, Vapor Density & Empirical Formula',
+      'Mole Concept: Stoichiometric Calculations from Chemical Equations',
+      'Electrolysis: Electrolytes, Electrodes, Mechanism & Preferential Discharge of Ions',
+      'Electrolysis: Applications (Electroplating, Electro-refining, Extraction of Aluminium / Hall-Heroult)',
+      'Metallurgy: Minerals & Ores, Concentration, Roasting, Calcination, Reduction & Refining',
+      'Study of Compounds: Hydrogen Chloride (Preparation, Fountain Experiment, Properties)',
+      'Study of Compounds: Ammonia (Haber’s Process, Fountain Experiment, Reducing Properties)',
+      'Study of Compounds: Nitric Acid (Ostwald’s Process, Oxidising Agent Reactions)',
+      'Study of Compounds: Sulphuric Acid (Contact Process, Dehydrating & Oxidising Properties)',
+      'Organic Chemistry: IUPAC Nomenclature (Alkanes, Alkenes, Alkynes, Alcohols, Aldehydes, Acids)',
+      'Organic Chemistry: Hydrocarbons (Methane, Ethane, Ethene, Ethyne - Preparation & Reactions)',
+      'Organic Chemistry: Alcohols (Ethanol) & Carboxylic Acids (Ethanoic Acid)'
+    ]
+  },
+  {
+    id: 'biology',
+    name: 'Biology',
+    boardGroup: 'Group II (Science)',
+    paper: 'Science Paper 3',
+    color: '#10AC84', // Plagg Emerald
+    badgeBg: 'rgba(16, 172, 132, 0.15)',
+    icon: 'dna',
+    defaultMaxMarks: 80,
+    chapters: [
+      'Basic Biology: Cell Cycle, Mitosis (Stages & Diagrams) & Meiosis Significance',
+      'Basic Biology: Structure of Chromosome, DNA & Genes',
+      'Genetics: Mendel’s Laws of Inheritance, Monohybrid & Dihybrid Crosses, Sex Determination',
+      'Plant Physiology: Absorption by Roots, Imbibition, Diffusion, Osmosis & Turgidity',
+      'Plant Physiology: Transpiration (Mechanism, Factors, Experiments & Guttation)',
+      'Plant Physiology: Photosynthesis (Light & Dark Reactions, Factors & Chlorophyll Experiments)',
+      'Human Anatomy: Circulatory System (Blood Components, Heart Structure, Cardiac Cycle, Double Circulation)',
+      'Human Anatomy: Excretory System (Kidney Anatomy, Nephron Structure, Urine Formation)',
+      'Human Anatomy: Nervous System (Neuron, Brain Parts & Functions, Reflex Arc, Spinal Cord)',
+      'Human Anatomy: Sense Organs (Eye Defects & Corrections, Ear Structure & Balance)',
+      'Human Anatomy: Endocrine System (Pituitary, Thyroid, Adrenal, Pancreas Hormones & Disorders)',
+      'Human Anatomy: Reproductive System (Male & Female Anatomy, Menstrual Cycle)',
+      'Population & Pollution: Population Explosion & Control, Environmental Pollution Categories'
+    ]
+  },
+
+  // GROUP III: PRAGNYA'S OPTIONAL / ELECTIVE SUBJECT
+  {
     id: 'computer-applications',
-    name: 'Computer Applications',
-    group: 'Group III (Elective)',
+    name: 'Computer Applications (Optional)',
+    boardGroup: 'Group III (Optional / Elective)',
+    paper: 'Elective (Theory 100 + Practical 100)',
     color: '#00F59B', // Cat Noir Neon Green
     badgeBg: 'rgba(0, 245, 155, 0.15)',
     icon: 'terminal',
-    defaultMaxMarks: 100,
-    chapters: ['OOP Principles & Java Basics', 'Class as Basis of Computation', 'User-Defined Methods', 'Constructors', 'Library Classes & Wrapper Classes', 'Encapsulation & Arrays (1D & 2D)', 'String Handling & Algorithms']
+    defaultMaxMarks: 100, // ICSE Board Theory Paper is 100 marks!
+    chapters: [
+      'Revision of Class IX Java & Object-Oriented Programming (OOP) Principles',
+      'Class as the Basis of all Computation (Objects, State, Behavior & Blueprints)',
+      'User-Defined Methods: Definition, Method Signature, Return Types & Calling Mechanisms',
+      'User-Defined Methods: Pass by Value vs Pass by Reference (Pure vs Impure Methods)',
+      'User-Defined Methods: Method Overloading (Polymorphism in Java)',
+      'Constructors: Default, Parameterized, Constructor Overloading & `this` Keyword',
+      'Library Classes: Wrapper Classes (`Integer`, `Double`, `Character`, Autoboxing/Unboxing)',
+      'Character Functions: `isLetter()`, `isDigit()`, `isLetterOrDigit()`, `isWhitespace()`, `toUpperCase()`, `toLowerCase()`',
+      'Encapsulation: Scope of Variables (Local, Instance & Class / Static Variables)',
+      'Arrays: Single Dimensional Arrays (Creation, Traversal, Memory Allocation)',
+      'Arrays: Linear Search & Binary Search Algorithms',
+      'Arrays: Bubble Sort & Selection Sort Algorithms',
+      'Arrays: Double Dimensional Arrays (Matrix Addition, Diagonal Elements, Row/Column Sum)',
+      'String Handling: String Immutability, `length()`, `charAt()`, `indexOf()`, `substring()`',
+      'String Handling: `equals()`, `equalsIgnoreCase()`, `compareTo()`, `trim()`, `replace()`',
+      'String Handling: Word Extraction, Palindrome Strings, Piglatin, Tokenizing & Character Frequency',
+      'ICSE Section B Java Program Writing Practice (15-mark structured programs)'
+    ]
   }
 ];
 
@@ -115,12 +271,12 @@ export const STUDY_TYPES = [
 ];
 
 export const LADYBUG_QUOTES = [
-  { quote: "Spots on, Pragnya! Every hour studied is a superpower unlocked!", author: "Ladybug (Marinette)" },
-  { quote: "No Akuma (stress) allowed! Focus on one concept at a time and you'll ace ICSE!", author: "Tikki" },
-  { quote: "Pound it! 👊 Hard work today turns into 95%+ on board results day!", author: "Cat Noir & Ladybug" },
-  { quote: "Lucky Charm! Your secret weapon is consistency and revision!", author: "Ladybug" },
-  { quote: "Claws out! Solve those sample papers with lightning speed and precision!", author: "Cat Noir" },
-  { quote: "There's always a way when you keep calm and believe in your prep!", author: "Master Fu" }
+  { quote: "Spots on, Pragnya! Every hour studied is a superpower unlocked for 10th ICSE!", author: "Ladybug (Marinette)" },
+  { quote: "No Akuma (stress) allowed! Focus on one chapter at a time and you'll conquer the board exams!", author: "Tikki" },
+  { quote: "Pound it! 👊 Hard work today turns into 95%+ on ICSE results day!", author: "Cat Noir & Ladybug" },
+  { quote: "Lucky Charm! Your greatest weapon is consistency in solving specimen papers!", author: "Ladybug" },
+  { quote: "Claws out! Ace those Computer Applications Java programs with zero bugs!", author: "Cat Noir" },
+  { quote: "Believe in your preparation. There is always a way to victory!", author: "Master Fu" }
 ];
 
 // Helper to get past date string (YYYY-MM-DD)
@@ -130,161 +286,139 @@ function getPastDate(daysAgo) {
   return d.toISOString().split('T')[0];
 }
 
-// Realistic initial demo study sessions for Pragnya
+// Realistic initial demo study sessions for Pragnya (ICSE 10th with Computer Applications)
 export const SAMPLE_STUDY_SESSIONS = [
   {
     id: 'sample-1',
     student_name: 'Pragnya',
-    subject: 'Mathematics',
-    chapter_topic: 'Circles - Theorems & Tangents',
+    subject: 'Computer Applications (Optional)',
+    chapter_topic: 'Bubble Sort & Selection Sort Algorithms in Java',
     duration_minutes: 90,
     study_date: getPastDate(0),
     study_type: 'Problem Solving',
     efficiency_rating: 5,
-    notes: 'Solved 15 board questions from ML Aggarwal. Perfect grasp on alternate segment theorem!'
+    notes: 'Wrote full code for sorting String array in alphabetical order. 100% dry run accurate!'
   },
   {
     id: 'sample-2',
     student_name: 'Pragnya',
-    subject: 'Physics',
-    chapter_topic: 'Light - Refraction through Lenses',
+    subject: 'Mathematics',
+    chapter_topic: 'Circles - Alternate Segment Theorem & Tangents',
     duration_minutes: 75,
     study_date: getPastDate(0),
-    study_type: 'Revision',
-    efficiency_rating: 4,
-    notes: 'Drew ray diagrams for convex lens; revised sign conventions and lens formula.'
+    study_type: 'Problem Solving',
+    efficiency_rating: 5,
+    notes: 'Solved 12 questions from ML Aggarwal. Perfect understanding of cyclic quadrilateral properties.'
   },
   {
     id: 'sample-3',
     student_name: 'Pragnya',
-    subject: 'Computer Applications',
-    chapter_topic: 'String Handling Algorithms',
+    subject: 'Physics',
+    chapter_topic: 'Refraction through Lenses & Sign Conventions',
     duration_minutes: 60,
     study_date: getPastDate(1),
-    study_type: 'Self Study',
-    efficiency_rating: 5,
-    notes: 'Practiced palindrome, word count, and frequency array programs in Java.'
+    study_type: 'Revision',
+    efficiency_rating: 4,
+    notes: 'Practiced ray diagrams for concave and convex lenses. Lens formula numericals verified.'
   },
   {
     id: 'sample-4',
     student_name: 'Pragnya',
     subject: 'Chemistry',
-    chapter_topic: 'Organic Chemistry - Alkanes & Alkenes',
+    chapter_topic: 'Organic Chemistry - Alkanes, Alkenes & IUPAC Naming',
     duration_minutes: 80,
     study_date: getPastDate(1),
-    study_type: 'Problem Solving',
+    study_type: 'Self Study',
     efficiency_rating: 4,
-    notes: 'Wrote all IUPAC nomenclatures and addition reactions for ethylene and acetylene.'
+    notes: 'Drew isomers of Pentane and Butene; wrote all addition reactions for Ethene.'
   },
   {
     id: 'sample-5',
     student_name: 'Pragnya',
-    subject: 'History & Civics',
-    chapter_topic: 'Union Parliament & President',
-    duration_minutes: 70,
+    subject: 'Computer Applications (Optional)',
+    chapter_topic: 'String Handling - Palindrome & Word Frequency',
+    duration_minutes: 85,
     study_date: getPastDate(2),
-    study_type: 'Revision',
+    study_type: 'Problem Solving',
     efficiency_rating: 5,
-    notes: 'Memorized powers of Lok Sabha vs Rajya Sabha, electoral college for President.'
+    notes: 'Mastered `charAt()` and `substring()` logic for extracting words and checking Piglatin.'
   },
   {
     id: 'sample-6',
     student_name: 'Pragnya',
-    subject: 'Biology',
-    chapter_topic: 'Circulatory System & Blood Vessels',
-    duration_minutes: 90,
+    subject: 'History & Civics',
+    chapter_topic: 'The Union Parliament (Powers of Lok Sabha vs Rajya Sabha)',
+    duration_minutes: 70,
     study_date: getPastDate(2),
     study_type: 'Self Study',
-    efficiency_rating: 4,
-    notes: 'Drew structure of heart, double circulation diagram, and memorized blood groups.'
+    efficiency_rating: 5,
+    notes: 'Revised money bills vs ordinary bills and exclusive powers of Rajya Sabha.'
   },
   {
     id: 'sample-7',
     student_name: 'Pragnya',
-    subject: 'Mathematics',
-    chapter_topic: 'Quadratic Equations & Word Problems',
-    duration_minutes: 105,
+    subject: 'Biology',
+    chapter_topic: 'Circulatory System & Structure of Human Heart',
+    duration_minutes: 90,
     study_date: getPastDate(3),
-    study_type: 'Problem Solving',
-    efficiency_rating: 5,
-    notes: 'Speed-distance and pipe-cistern problems solved accurately!'
+    study_type: 'Self Study',
+    efficiency_rating: 4,
+    notes: 'Drew labeled diagram of heart chambers and double circulation path.'
   },
   {
     id: 'sample-8',
     student_name: 'Pragnya',
     subject: 'Geography',
-    chapter_topic: 'Topographical Maps & Contours',
+    chapter_topic: 'Topographical Maps - 4 & 6 Figure Grid References',
     duration_minutes: 60,
     study_date: getPastDate(3),
     study_type: 'Sample Paper',
-    efficiency_rating: 4,
-    notes: 'Solved 2 topo sheets; 4-figure and 6-figure grid references 100% accurate.'
+    efficiency_rating: 5,
+    notes: 'Practiced 20 grid reference questions and drainage pattern identification.'
   },
   {
     id: 'sample-9',
     student_name: 'Pragnya',
-    subject: 'English Literature',
-    chapter_topic: 'Julius Caesar - Act III Scene 2 (Antony Speech)',
-    duration_minutes: 75,
+    subject: 'Mathematics',
+    chapter_topic: 'Quadratic Equations - Speed & Distance Word Problems',
+    duration_minutes: 100,
     study_date: getPastDate(4),
-    study_type: 'Self Study',
+    study_type: 'Problem Solving',
     efficiency_rating: 5,
-    notes: 'Analyzed rhetorical questions in Antony speech; noted key quote keywords.'
+    notes: 'Speed increase/decrease train problems solved without any algebraic slips.'
   },
   {
     id: 'sample-10',
     student_name: 'Pragnya',
-    subject: 'Physics',
-    chapter_topic: 'Calorimetry & Principle of Mixtures',
-    duration_minutes: 85,
+    subject: 'English Literature',
+    chapter_topic: 'Julius Caesar - Act III Scene 2 (Antony Funeral Speech)',
+    duration_minutes: 65,
     study_date: getPastDate(4),
-    study_type: 'Problem Solving',
-    efficiency_rating: 4,
-    notes: 'Heat capacity problems; paid special attention to heat loss to surroundings.'
+    study_type: 'Revision',
+    efficiency_rating: 5,
+    notes: 'Analyzed Antony rhetorical irony ("Brutus is an honourable man").'
   },
   {
     id: 'sample-11',
     student_name: 'Pragnya',
-    subject: 'Chemistry',
-    chapter_topic: 'Electrolysis & Metallurgy',
-    duration_minutes: 90,
-    study_date: getPastDate(5),
-    study_type: 'Revision',
-    efficiency_rating: 5,
-    notes: "Hall-Heroult process and electroplating equations memorized."
-  },
-  {
-    id: 'sample-12',
-    student_name: 'Pragnya',
     subject: 'English Language',
-    chapter_topic: 'Prepositions & Sentence Transformations',
+    chapter_topic: 'Transformation of Sentences & Prepositions',
     duration_minutes: 50,
     study_date: getPastDate(5),
     study_type: 'Problem Solving',
     efficiency_rating: 4,
-    notes: 'Attempted 40 transformation exercises (Total English Grade 10).'
+    notes: 'Practiced 30 transformation exercises from Total English Grade 10.'
   },
   {
-    id: 'sample-13',
-    student_name: 'Pragnya',
-    subject: 'Mathematics',
-    chapter_topic: 'Trigonometric Identities & Heights & Distances',
-    duration_minutes: 110,
-    study_date: getPastDate(6),
-    study_type: 'Problem Solving',
-    efficiency_rating: 5,
-    notes: 'Double angle-of-elevation problems; simplified algebraic proofs.'
-  },
-  {
-    id: 'sample-14',
+    id: 'sample-12',
     student_name: 'Pragnya',
     subject: 'Hindi',
-    chapter_topic: 'Sahitya Sagar - Baat Athanni Ki & Vyakaran',
+    chapter_topic: 'Sahitya Sagar - Baat Athanni Ki & Vyakaran Muhavare',
     duration_minutes: 60,
     study_date: getPastDate(6),
     study_type: 'Revision',
     efficiency_rating: 4,
-    notes: 'Character sketch of Rasila and Babu Jagat Singh + Muhavare practice.'
+    notes: 'Wrote character sketches of Rasila and Babu Jagat Singh.'
   }
 ];
 
@@ -293,65 +427,65 @@ export const SAMPLE_MOCK_MARKS = [
   {
     id: 'mock-1',
     student_name: 'Pragnya',
-    subject: 'Mathematics',
-    paper_name: 'Oswaal Specimen Mock Paper 1',
+    subject: 'Computer Applications (Optional)',
+    paper_name: 'CISCE Specimen Paper 2026',
     test_date: getPastDate(1),
-    marks_obtained: 74,
-    max_marks: 80,
-    percentage: 92.5,
-    time_taken_minutes: 140,
-    weak_areas: 'Calculation slip in Ogive median estimation (lost 2 marks).',
-    strong_areas: 'Circles tangents theorem and Quadratic word problems 100% correct!',
-    notes: 'Excellent speed. Finished 10 minutes early with thorough re-checking.'
+    marks_obtained: 96,
+    max_marks: 100, // Theory paper out of 100
+    percentage: 96.0,
+    time_taken_minutes: 110,
+    weak_areas: 'Section A question on implicit vs explicit typecasting definition.',
+    strong_areas: 'Section B Java programs: String handling & Bubble Sort matrix program scored 60/60 full marks!',
+    notes: 'Superb result! Cat Noir & Tikki are celebrating!'
   },
   {
     id: 'mock-2',
     student_name: 'Pragnya',
-    subject: 'Physics',
-    paper_name: 'Educart ICSE 2026 Sample Paper 1',
-    test_date: getPastDate(3),
-    marks_obtained: 71,
+    subject: 'Mathematics',
+    paper_name: 'Oswaal ICSE Specimen Mock 1',
+    test_date: getPastDate(2),
+    marks_obtained: 74,
     max_marks: 80,
-    percentage: 88.75,
-    time_taken_minutes: 115,
-    weak_areas: 'Radioactivity decay equations and nuclear reaction balance.',
-    strong_areas: 'Refraction through prisms and work-energy power numericals.',
-    notes: 'Review Alpha/Beta decay rules before next test.'
+    percentage: 92.5,
+    time_taken_minutes: 140,
+    weak_areas: 'Small calculation slip in Ogive median estimation (lost 2 marks).',
+    strong_areas: 'Circles tangents proof and Quadratic word problem 100% correct.',
+    notes: 'Great speed. Re-checked all answers with 10 mins remaining.'
   },
   {
     id: 'mock-3',
     student_name: 'Pragnya',
-    subject: 'Computer Applications',
-    paper_name: 'School Pre-board Practice Paper',
-    test_date: getPastDate(5),
-    marks_obtained: 96,
-    max_marks: 100,
-    percentage: 96.0,
-    time_taken_minutes: 110,
-    weak_areas: 'Minor variable scope question in Section A.',
-    strong_areas: 'Section B Java programs: String manipulation & 2D array matrix transpose.',
-    notes: 'Phenomenal result! Plagg & Ladybug would be proud!'
+    subject: 'Physics',
+    paper_name: 'Educart ICSE 2026 Practice Paper 1',
+    test_date: getPastDate(4),
+    marks_obtained: 72,
+    max_marks: 80,
+    percentage: 90.0,
+    time_taken_minutes: 115,
+    weak_areas: 'Radioactivity Alpha/Beta decay nuclear equation balance.',
+    strong_areas: 'Refraction through prisms and work-energy power numericals.',
+    notes: 'Review radioactive decay laws before next test.'
   },
   {
     id: 'mock-4',
     student_name: 'Pragnya',
     subject: 'Chemistry',
-    paper_name: 'CISCE Specimen Paper 2026',
-    test_date: getPastDate(7),
-    marks_obtained: 72,
+    paper_name: 'School Prelim Paper 1',
+    test_date: getPastDate(6),
+    marks_obtained: 73,
     max_marks: 80,
-    percentage: 90.0,
+    percentage: 91.25,
     time_taken_minutes: 120,
-    weak_areas: 'Observations in analytical chemistry test tube reactions.',
-    strong_areas: 'Mole concept calculations and Organic Chemistry isomerism.',
-    notes: 'Remember precipitate colors: Fe2+ dirty green, Fe3+ reddish brown.'
+    weak_areas: 'Observation colors in analytical chemistry precipitates.',
+    strong_areas: 'Mole concept stoichiometry and Organic chemistry isomerism.',
+    notes: 'Keep practicing dirty green Fe2+ and reddish-brown Fe3+ tests.'
   },
   {
     id: 'mock-5',
     student_name: 'Pragnya',
     subject: 'History & Civics',
     paper_name: 'Educart Mock Test 2',
-    test_date: getPastDate(9),
+    test_date: getPastDate(8),
     marks_obtained: 75,
     max_marks: 80,
     percentage: 93.75,
@@ -364,14 +498,14 @@ export const SAMPLE_MOCK_MARKS = [
     id: 'mock-6',
     student_name: 'Pragnya',
     subject: 'Biology',
-    paper_name: 'School Unit Assessment Mock',
-    test_date: getPastDate(11),
-    marks_obtained: 73,
+    paper_name: 'School Assessment Test',
+    test_date: getPastDate(10),
+    marks_obtained: 72.5,
     max_marks: 80,
-    percentage: 91.25,
+    percentage: 90.63,
     time_taken_minutes: 120,
     weak_areas: 'Endocrine hormones target organ matching.',
-    strong_areas: 'Photosynthesis light & dark phase flowcharts.',
-    notes: 'Neat labeled diagrams earned all diagrammatic marks.'
+    strong_areas: 'Photosynthesis light & dark phase experiments.',
+    notes: 'Neat labeled diagrams earned full marks.'
   }
 ];

@@ -97,22 +97,45 @@ function populateDropdowns() {
     document.getElementById('filter-marks-chart-subject')
   ];
 
+  const groupBuckets = {
+    'Group I (Compulsory)': [],
+    'Group II (Mathematics & Sciences)': [],
+    'Group III (Optional / Elective - Pragnya)': []
+  };
+
+  ICSE_SUBJECTS.forEach(sub => {
+    if (sub.boardGroup && sub.boardGroup.includes('Group I')) {
+      groupBuckets['Group I (Compulsory)'].push(sub);
+    } else if (sub.boardGroup && sub.boardGroup.includes('Group II')) {
+      groupBuckets['Group II (Mathematics & Sciences)'].push(sub);
+    } else {
+      groupBuckets['Group III (Optional / Elective - Pragnya)'].push(sub);
+    }
+  });
+
   subjectSelects.forEach(select => {
     if (!select) return;
     const isFilter = select.id.startsWith('filter-');
+    select.innerHTML = '';
     
     // Keep the "All" option if it's a filter
     if (isFilter) {
-      select.innerHTML = '<option value="all">All ICSE Subjects</option>';
-    } else {
-      select.innerHTML = '';
+      const allOpt = document.createElement('option');
+      allOpt.value = 'all';
+      allOpt.textContent = 'All ICSE Subjects';
+      select.appendChild(allOpt);
     }
 
-    ICSE_SUBJECTS.forEach(sub => {
-      const opt = document.createElement('option');
-      opt.value = sub.name;
-      opt.textContent = `${sub.name} (${sub.group})`;
-      select.appendChild(opt);
+    Object.entries(groupBuckets).forEach(([groupName, subs]) => {
+      const optGroup = document.createElement('optgroup');
+      optGroup.label = groupName;
+      subs.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub.name;
+        opt.textContent = `${sub.name} [${sub.paper || ''}]`;
+        optGroup.appendChild(opt);
+      });
+      select.appendChild(optGroup);
     });
   });
 
@@ -359,9 +382,136 @@ function renderTimeAnalyticsTab() {
 }
 
 function renderMockMarksTab() {
+  renderIcseBoardScorecard();
   renderMockMarksProgressChart('chart-mock-progress', state.mockMarks, state.marksChartSubject);
   renderSubjectScoreComparisonChart('chart-subject-comparison', state.mockMarks);
   renderFullMarksTable();
+}
+
+// ==============================================================================
+// ICSE 10TH BOARD BEST-OF-5 SCORECARD COMPUTATION
+// ==============================================================================
+function renderIcseBoardScorecard() {
+  const container = document.getElementById('icse-board-subjects-grid');
+  const overallBadge = document.getElementById('icse-best5-score');
+  if (!container || !overallBadge) return;
+
+  function getAvgPctFor(subjectNames) {
+    const list = state.mockMarks.filter(m => 
+      subjectNames.some(name => m.subject.toLowerCase().includes(name.toLowerCase()))
+    );
+    if (list.length === 0) return null;
+    const total = list.reduce((acc, m) => acc + (Number(m.percentage) || ((m.marks_obtained / m.max_marks) * 100)), 0);
+    return Number((total / list.length).toFixed(1));
+  }
+
+  // 1. English (Compulsory - Paper 1 & Paper 2 combined)
+  const engLang = getAvgPctFor(['English Language']);
+  const engLit = getAvgPctFor(['English Literature']);
+  let engScore = 90.0;
+  if (engLang !== null && engLit !== null) {
+    engScore = Number(((engLang + engLit) / 2).toFixed(1));
+  } else if (engLang !== null) {
+    engScore = engLang;
+  } else if (engLit !== null) {
+    engScore = engLit;
+  }
+
+  // 2. Second Language (Hindi)
+  const hindiScore = getAvgPctFor(['Hindi']) ?? 88.0;
+
+  // 3. H.C.G. (History & Civics + Geography)
+  const histScore = getAvgPctFor(['History & Civics']);
+  const geoScore = getAvgPctFor(['Geography']);
+  let hcgScore = 92.0;
+  if (histScore !== null && geoScore !== null) {
+    hcgScore = Number(((histScore + geoScore) / 2).toFixed(1));
+  } else if (histScore !== null) {
+    hcgScore = histScore;
+  } else if (geoScore !== null) {
+    hcgScore = geoScore;
+  }
+
+  // 4. Science (Physics + Chemistry + Biology)
+  const phyScore = getAvgPctFor(['Physics']);
+  const chemScore = getAvgPctFor(['Chemistry']);
+  const bioScore = getAvgPctFor(['Biology']);
+  const sciScores = [phyScore, chemScore, bioScore].filter(s => s !== null);
+  let scienceScore = sciScores.length > 0
+    ? Number((sciScores.reduce((a, b) => a + b, 0) / sciScores.length).toFixed(1))
+    : 90.5;
+
+  // 5. Mathematics
+  const mathScore = getAvgPctFor(['Mathematics']) ?? 92.5;
+
+  // 6. Computer Applications (Group III Optional Elective)
+  const compScore = getAvgPctFor(['Computer Applications']) ?? 96.0;
+
+  // 5 Non-English subjects for Best 4 selection:
+  const electivePool = [
+    { name: 'Mathematics', group: 'Group II', score: mathScore, icon: 'calculator', color: '#E51A4C' },
+    { name: 'Science', group: 'Phy + Chem + Bio', score: scienceScore, icon: 'flask-conical', color: '#00D2D3' },
+    { name: 'H.C.G.', group: 'Hist/Civ + Geo', score: hcgScore, icon: 'landmark', color: '#EE5253' },
+    { name: 'Second Language (Hindi)', group: 'Group I', score: hindiScore, icon: 'languages', color: '#FF6B6B' },
+    { name: 'Computer Applications', group: 'Group III Optional (Pragnya)', score: compScore, icon: 'terminal', color: '#00F59B', isOptional: true }
+  ];
+
+  // Sort descending by score
+  electivePool.sort((a, b) => b.score - a.score);
+
+  // Top 4 non-English are taken into Best 5
+  const top4Electives = electivePool.slice(0, 4);
+  const droppedSubject = electivePool[4];
+
+  top4Electives.forEach(item => item.inBest5 = true);
+  if (droppedSubject) droppedSubject.inBest5 = false;
+
+  // Calculate official Best of 5 aggregate
+  const best5Sum = engScore + top4Electives.reduce((acc, item) => acc + item.score, 0);
+  const best5Aggregate = (best5Sum / 5).toFixed(1);
+
+  overallBadge.textContent = `${best5Aggregate}%`;
+
+  const displaySubjects = [
+    { name: 'English (Compulsory)', group: 'Lang + Lit Combined', score: engScore, icon: 'file-text', color: '#5F27CD', isCompulsory: true },
+    ...electivePool
+  ];
+
+  container.innerHTML = displaySubjects.map(sub => {
+    let statusBadge = '';
+    let cardBorder = 'border: 1px solid var(--border-subtle);';
+
+    if (sub.isCompulsory) {
+      statusBadge = '<span style="color: #A5B4FC; font-size: 11px; font-weight: 700; background: rgba(95, 39, 205, 0.2); padding: 2px 6px; border-radius: 4px;">COMPULSORY</span>';
+      cardBorder = 'border: 1px solid rgba(95, 39, 205, 0.4);';
+    } else if (sub.inBest5) {
+      statusBadge = '<span style="color: var(--cn-green); font-size: 11px; font-weight: 700; background: rgba(0, 245, 155, 0.15); padding: 2px 6px; border-radius: 4px;">COUNTED IN BEST 5</span>';
+      cardBorder = 'border: 1px solid var(--border-green); box-shadow: 0 0 12px rgba(0, 245, 155, 0.1);';
+    } else {
+      statusBadge = '<span style="color: var(--text-muted); font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px;">DROPPED (6th Subject)</span>';
+      cardBorder = 'border: 1px dashed var(--border-subtle); opacity: 0.75;';
+    }
+
+    return `
+      <div style="background: var(--bg-card); border-radius: var(--radius-md); padding: 14px; ${cardBorder} display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(sub.group)}</div>
+          </div>
+          <i data-lucide="${sub.icon}" style="color: ${sub.color}; width: 16px; height: 16px;"></i>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+          <div style="font-family: var(--font-hero); font-size: 22px; font-weight: 700; color: ${sub.color};">
+            ${sub.score}%
+          </div>
+          <div>${statusBadge}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  lucide.createIcons();
 }
 
 // ==============================================================================
@@ -800,6 +950,17 @@ function setupEventListeners() {
   };
   document.getElementById('input-mark-obtained')?.addEventListener('input', calcScorePreview);
   document.getElementById('input-mark-total')?.addEventListener('input', calcScorePreview);
+
+  // Subject change in Mock Marks modal -> auto set defaultMaxMarks (100 for Computer Applications, 80 for others)
+  document.getElementById('input-mark-subject')?.addEventListener('change', (e) => {
+    const selectedName = e.target.value;
+    const subObj = ICSE_SUBJECTS.find(s => s.name === selectedName);
+    const totalInput = document.getElementById('input-mark-total');
+    if (totalInput && subObj) {
+      totalInput.value = subObj.defaultMaxMarks;
+      calcScorePreview();
+    }
+  });
 
   // FORM SUBMISSION: Log Study Session
   document.getElementById('form-log-session')?.addEventListener('submit', async (e) => {

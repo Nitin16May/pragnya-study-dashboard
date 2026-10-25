@@ -10,7 +10,13 @@ let activeCharts = {};
 
 // Color lookup map by subject name
 function getSubjectColor(subjectName) {
-  const match = ICSE_SUBJECTS.find(s => s.name.toLowerCase() === (subjectName || '').toLowerCase());
+  const norm = (subjectName || '').toLowerCase();
+  const match = ICSE_SUBJECTS.find(s => 
+    s.name.toLowerCase() === norm || 
+    s.name.toLowerCase().includes(norm) ||
+    norm.includes(s.name.toLowerCase()) ||
+    norm.includes(s.id)
+  );
   return match ? match.color : '#E51A4C';
 }
 
