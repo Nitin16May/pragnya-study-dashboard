@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pragnya ICSE 10th Study & Marks Tracker • Miraculous Ladybug Edition</title>
+  
+  <meta name="description" content="Subject-wise and day-wise ICSE Grade 10 study time logger and sample paper marks analytics for Pragnya, synced with Supabase.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23E51A4C%22/><circle cx=%2232%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2268%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2250%22 cy=%2265%22 r=%229%22 fill=%22%23111%22/></svg>">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./app.css?v=2">
+
+  <!-- External CDNs: Chart.js & Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="brand-section">
+        <div class="ladybug-avatar" id="avatar-trigger" title="Miraculous Spots On!">
+          <div class="ladybug-spots spot-1"></div>
+          <div class="ladybug-spots spot-2"></div>
+          <div class="ladybug-spots spot-3"></div>
+          <i data-lucide="sparkles" style="color: #fff; width: 20px; height: 20px;"></i>
+        </div>
+        <div class="brand-title">
+          <div class="brand-name">
+            Pragnya's ICSE Study HQ
+            <span class="icse-badge">ICSE 10th</span>
+          </div>
+          <div class="brand-subtitle">Time Measurement & Sample Paper Marks Engine</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- ICSE Exam Countdown -->
+        <div class="countdown-chip" id="exam-countdown" title="Countdown to ICSE 2027/2026 Board Exams">
+          <i data-lucide="calendar" style="width: 15px; height: 15px;"></i>
+          <span id="countdown-text">ICSE Prep Mode</span>
+        </div>
+
+        <!-- Study Streak -->
+        <div class="streak-chip" id="study-streak-badge">
+          <i data-lucide="flame" style="width: 15px; height: 15px; color: var(--lb-red);"></i>
+          <span id="streak-count">7 Day Streak!</span>
+        </div>
+
+        <!-- Supabase Cloud Sync Status -->
+        <button class="supabase-status-btn" id="btn-open-settings" title="Supabase Database Settings">
+          <span class="status-dot demo" id="sync-dot"></span>
+          <span id="sync-status-label">Demo Mode</span>
+          <i data-lucide="settings" style="width: 14px; height: 14px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO MOTIVATIONAL BANNER -->
+    <section class="hero-banner">
+      <div class="hero-quote-box">
+        <div class="hero-greeting">
+          <i data-lucide="zap" style="width: 16px; height: 16px; color: var(--cn-green);"></i>
+          <span>Lucky Charm Boost • Board Exam Mission</span>
+        </div>
+        <div class="hero-quote" id="hero-quote-text">
+          "Spots on, Pragnya! Every hour studied is a superpower unlocked!"
+        </div>
+        <div class="hero-author" id="hero-quote-author">— Ladybug (Marinette)</div>
+      </div>
+
+      <div class="hero-cta-group">
+        <button class="btn btn-primary" id="btn-quick-log-session">
+          <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i>
+          Log Study Time
+        </button>
+        <button class="btn btn-catnoir" id="btn-quick-log-marks">
+          <i data-lucide="award" style="width: 16px; height: 16px;"></i>
+          Enter Paper Marks
+        </button>
+      </div>
+
+      <div class="hero-watermark">10th</div>
+    </section>
+
+    <!-- LIVE STUDY STOPWATCH / POMODORO WIDGET ("Spots On!" Mode) -->
+    <section class="live-timer-widget" id="live-timer-card">
+      <div class="timer-yoyo-icon" id="yoyo-icon">
+        <i data-lucide="clock" style="color: #fff; width: 30px; height: 30px;"></i>
+      </div>
+
+      <div class="timer-center">
+        <div class="timer-display-row">
+          <div class="timer-digits" id="timer-display">00:00:00</div>
+          <div class="timer-subject-pill" id="timer-active-label">Ready for Study Session</div>
+        </div>
+        <div class="timer-inputs-row">
+          <select id="timer-subject-select" class="timer-select">
+            <!-- Populated dynamically with ICSE subjects -->
+          </select>
+          <input type="text" id="timer-topic-input" class="timer-input" placeholder="Chapter / Topic (e.g. Circles Tangents, Refraction)..." />
+        </div>
+      </div>
+
+      <div class="timer-actions">
+        <button class="btn btn-primary" id="timer-toggle-btn">
+          <i data-lucide="play" id="timer-toggle-icon" style="width: 16px; height: 16px;"></i>
+          <span id="timer-toggle-text">Spots On! (Start)</span>
+        </button>
+        <button class="btn btn-secondary" id="timer-reset-btn" title="Reset Timer">
+          <i data-lucide="rotate-ccw" style="width: 15px; height: 15px;"></i>
+        </button>
+        <button class="btn btn-catnoir" id="timer-save-btn" title="Complete and Log to Database" disabled>
+          <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+          Save Session
+        </button>
+      </div>
+    </section>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="tabs-navigation">
+      <button class="tab-btn active" data-tab="overview">
+        <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+        Overview & Stats
+      </button>
+      <button class="tab-btn" data-tab="time-analytics">
+        <i data-lucide="hourglass" style="width: 16px; height: 16px;"></i>
+        Time Measurement (Subject & Day-wise)
+      </button>
+      <button class="tab-btn" data-tab="mock-marks">
+        <i data-lucide="file-check" style="width: 16px; height: 16px;"></i>
+        Sample Paper Marks Entries
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW & STATS -->
+    <main id="tab-overview" class="tab-content active">
+      
+      <!-- KPI STATS CARDS -->
+      <div class="stats-grid">
+        <!-- Today's Study Time -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Today's Study</span>
+            <div class="stat-icon red"><i data-lucide="clock" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-today-time">0h 0m</div>
+          <div class="stat-footer">
+            <span>Target: 4.5h daily</span>
+            <span class="stat-badge-good" id="kpi-today-status">🎯 In Progress</span>
+          </div>
+          <div class="stat-progress-bar">
+            <div class="stat-progress-fill" id="kpi-today-progress" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Weekly Total Time -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">This Week's Total</span>
+            <div class="stat-icon blue"><i data-lucide="calendar-days" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-week-time">0.0 hrs</div>
+          <div class="stat-footer">
+            <span id="kpi-week-count">0 study sessions</span>
+          </div>
+        </div>
+
+        <!-- Average Mock Test Score -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Sample Paper Avg</span>
+            <div class="stat-icon green"><i data-lucide="percent" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-avg-marks">0.0%</div>
+          <div class="stat-footer">
+            <span id="kpi-marks-grade" class="stat-badge-good">Distinction Range</span>
+          </div>
+        </div>
+
+        <!-- Top Focus Subject -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Top Focus Subject</span>
+            <div class="stat-icon gold"><i data-lucide="star" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-top-subject" style="font-size: 22px;">Mathematics</div>
+          <div class="stat-footer">
+            <span id="kpi-top-subject-hours">0h logged</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CHARTS ROW -->
+      <div class="charts-grid">
+        <!-- Daily Study Hours Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Daily Study Time (Day-wise Measurement)</h3>
+              <span class="chart-subtitle">Hours logged per day with 4.5h target reference line</span>
+            </div>
+            <div class="chart-filter-pills">
+              <button class="pill-btn active" data-days="7">7 Days</button>
+              <button class="pill-btn" data-days="14">14 Days</button>
+              <button class="pill-btn" data-days="30">30 Days</button>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-daily-study"></canvas>
+          </div>
+        </div>
+
+        <!-- Subject Time Share (Doughnut) -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Subject Distribution</h3>
+              <span class="chart-subtitle">Time share across ICSE subjects</span>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-subject-distribution"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT SESSIONS SNIPPET -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="chart-title-group">
+            <h3 class="chart-title">Recent Study Sessions</h3>
+            <span class="chart-subtitle">Last logged chapters & problem solving sessions</span>
+          </div>
+          <button class="btn btn-outline" id="btn-view-all-sessions">
+            View All in Time Logs
+            <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Chapter / Topic</th>
+                <th>Duration</th>
+                <th>Type</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="overview-recent-sessions-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 2: TIME MEASUREMENT (SUBJECT-WISE, DAY-WISE) -->
+    <main id="tab-time-analytics" class="tab-content" style="display: none;">
+      
+      <!-- Consistency & Day of Week Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Day-of-Week Study Consistency</h3>
+              <span class="chart-subtitle">Total study hours by weekday (Monday - Sunday)</span>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-day-of-week"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Subject Hours Breakdown</h3>
+              <span class="chart-subtitle">Ranking of total hours spent per ICSE subject</span>
+            </div>
+          </div>
+          <div id="subject-hours-rank-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; max-height: 280px; overflow-y: auto;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL LOGGED SESSIONS TABLE WITH FILTERS -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="chart-title-group">
+            <h3 class="chart-title">Subject-Wise & Day-Wise Study History</h3>
+            <span class="chart-subtitle">Complete time measurement ledger with delete & search</span>
+          </div>
+          <div class="table-filters">
+            <select id="filter-session-subject" class="timer-select">
+              <option value="all">All ICSE Subjects</option>
+              <!-- Populated via JS -->
+            </select>
+            <input type="text" id="search-sessions-input" class="search-input" placeholder="Search topic or notes..." />
+            <button class="btn btn-primary" id="btn-add-session-from-tab">
+              <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+              Log Session
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Chapter / Topic</th>
+                <th>Duration</th>
+                <th>Type</th>
+                <th>Efficiency</th>
+                <th>Notes</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="full-sessions-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 3: SAMPLE PAPER MARKS ENTRIES -->
+    <main id="tab-mock-marks" class="tab-content" style="display: none;">
+      
+      <!-- Mock Marks KPI Bar -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Sample Papers Solved</span>
+            <div class="stat-icon red"><i data-lucide="file-check" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-papers-count">0</div>
+          <div class="stat-footer">Across all ICSE subjects</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Highest Score</span>
+            <div class="stat-icon green"><i data-lucide="trophy" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value" id="kpi-highest-score">0%</div>
+          <div class="stat-footer" id="kpi-highest-subject">Keep practicing!</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Target Board Score</span>
+            <div class="stat-icon gold"><i data-lucide="target" style="width: 18px; height: 18px;"></i></div>
+          </div>
+          <div class="stat-value">95.0%</div>
+          <div class="stat-footer">ICSE Board Distinction Goal</div>
+        </div>
+      </div>
+
+      <!-- MOCK MARKS CHARTS -->
+      <div class="charts-grid">
+        <!-- Marks Progress Over Time -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Mock Paper Score Trajectory</h3>
+              <span class="chart-subtitle">Progress timeline across practice tests</span>
+            </div>
+            <select id="filter-marks-chart-subject" class="timer-select" style="padding: 4px 8px; font-size: 12px;">
+              <option value="all">All Subjects</option>
+            </select>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-mock-progress"></canvas>
+          </div>
+        </div>
+
+        <!-- Subject Average Score Comparison -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 class="chart-title">Subject Average Scores</h3>
+              <span class="chart-subtitle">Identify strongest & focus subjects</span>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-subject-comparison"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOCK PAPERS TABLE -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="chart-title-group">
+            <h3 class="chart-title">Sample Paper & Pre-board Marks Ledger</h3>
+            <span class="chart-subtitle">Test-wise marks entries, percentages, and error analysis</span>
+          </div>
+          <div class="table-filters">
+            <select id="filter-marks-subject" class="timer-select">
+              <option value="all">All ICSE Subjects</option>
+            </select>
+            <input type="text" id="search-marks-input" class="search-input" placeholder="Search paper title or notes..." />
+            <button class="btn btn-catnoir" id="btn-add-mark-from-tab">
+              <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+              Enter Paper Marks
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Paper Name / Source</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Time Taken</th>
+                <th>Weak Areas / Focus Topics</th>
+                <th>Strong Areas</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="full-marks-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div> <!-- End App Container -->
+
+  <!-- ==============================================================================
+       MODAL: MANUAL TIME LOGGING MODAL
+       ============================================================================== -->
+  <div class="modal-overlay" id="modal-log-time">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="ladybug-spots" style="position: static; width: 10px; height: 10px; background: var(--lb-red); border-radius: 50%;"></div>
+          <h3 class="modal-title">Log ICSE Study Time</h3>
+        </div>
+        <button class="modal-close-btn" data-close="modal-log-time"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-log-session">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Study Date *</label>
+              <input type="date" id="input-session-date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">ICSE Subject *</label>
+              <select id="input-session-subject" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Chapter / Topic Covered *</label>
+            <input type="text" id="input-session-topic" class="form-input" placeholder="e.g. ML Aggarwal Circles Tangents, Refraction Lenses" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Duration *</label>
+            <div class="form-row">
+              <input type="number" id="input-session-hours" class="form-input" placeholder="Hours (e.g. 1)" min="0" max="16" />
+              <input type="number" id="input-session-minutes" class="form-input" placeholder="Minutes (e.g. 45)" min="0" max="59" />
+            </div>
+            <div class="quick-duration-pills">
+              <button type="button" class="duration-pill" data-mins="30">30 mins</button>
+              <button type="button" class="duration-pill" data-mins="45">45 mins</button>
+              <button type="button" class="duration-pill" data-mins="60">1 hr</button>
+              <button type="button" class="duration-pill" data-mins="90">1.5 hrs</button>
+              <button type="button" class="duration-pill" data-mins="120">2 hrs</button>
+              <button type="button" class="duration-pill" data-mins="180">3 hrs</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Study Type</label>
+              <select id="input-session-type" class="form-select">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Efficiency / Focus (1-5)</label>
+              <select id="input-session-efficiency" class="form-select">
+                <option value="5">⭐⭐⭐⭐⭐ Super Focused (Tikki Mode)</option>
+                <option value="4" selected>⭐⭐⭐⭐ Good Concentration</option>
+                <option value="3">⭐⭐⭐ Moderate Focus</option>
+                <option value="2">⭐⭐ Distracted</option>
+                <option value="1">⭐ Low Focus</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Study Notes / Insights</label>
+            <textarea id="input-session-notes" class="form-textarea" rows="2" placeholder="Key concepts mastered, formulas revised, doubts noted..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close="modal-log-time">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+            Save Session
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================================================
+       MODAL: SAMPLE PAPER MARKS ENTRY
+       ============================================================================== -->
+  <div class="modal-overlay" id="modal-log-marks">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="award" style="color: var(--cn-green); width: 22px; height: 22px;"></i>
+          <h3 class="modal-title">Enter Sample Paper / Mock Marks</h3>
+        </div>
+        <button class="modal-close-btn" data-close="modal-log-marks"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-log-marks">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Test Date *</label>
+              <input type="date" id="input-mark-date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject *</label>
+              <select id="input-mark-subject" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Sample Paper Name / Source *</label>
+            <input type="text" id="input-mark-paper" class="form-input" placeholder="e.g. Educart Mock Paper 1, Oswaal Specimen 2026, Prelim 1" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Marks Scored *</label>
+              <input type="number" step="0.5" id="input-mark-obtained" class="form-input" placeholder="e.g. 74" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Marks (Out of) *</label>
+              <input type="number" id="input-mark-total" class="form-input" value="80" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Time Taken (minutes)</label>
+              <input type="number" id="input-mark-time" class="form-input" placeholder="e.g. 120 (for 2 hrs paper)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Calculated Score %</label>
+              <div id="mark-percentage-preview" style="font-size: 18px; font-weight: 700; color: var(--cn-green); padding-top: 8px;">0.0%</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Weak Areas / Error Analysis (What to revise)</label>
+            <textarea id="input-mark-weak" class="form-textarea" rows="2" placeholder="e.g. Calculation error in Ogive median, lost 2 marks in electrolysis observations..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Strong Areas / Perfect Sections</label>
+            <input type="text" id="input-mark-strong" class="form-input" placeholder="e.g. Section B Java programs, Circles tangents proofs" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close="modal-log-marks">Cancel</button>
+          <button type="submit" class="btn btn-catnoir">
+            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+            Save Marks Entry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================================================
+       MODAL: SUPABASE SETTINGS & SQL SETUP MODAL
+       ============================================================================== -->
+  <div class="modal-overlay" id="modal-settings">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="database" style="color: var(--lb-red); width: 22px; height: 22px;"></i>
+          <h3 class="modal-title">Supabase Database Connection</h3>
+        </div>
+        <button class="modal-close-btn" data-close="modal-settings"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+          Connect your free Supabase project to sync Pragnya's study logs and marks in real-time across devices, just like FitMetrics / Diet Tracker!
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Project URL</label>
+          <input type="url" id="setting-supabase-url" class="form-input" placeholder="https://yourproject.supabase.co" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Anon / Publishable API Key</label>
+          <input type="password" id="setting-supabase-key" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." />
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-save-supabase">
+            <i data-lucide="save" style="width: 15px; height: 15px;"></i>
+            Save & Test Connection
+          </button>
+          <button class="btn btn-secondary" id="btn-disconnect-supabase">
+            Disconnect (Switch to Local)
+          </button>
+          <button class="btn btn-outline" id="btn-reset-demo-data">
+            Reset Sample Data
+          </button>
+        </div>
+
+        <div id="settings-status-msg" style="font-size: 13px; display: none; padding: 10px 14px; border-radius: 8px;"></div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 6px 0;" />
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label class="form-label" style="margin-bottom: 0;">Supabase SQL Setup Script</label>
+            <button class="btn btn-outline" id="btn-copy-sql" style="padding: 4px 10px; font-size: 11px;">
+              <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+              Copy SQL
+            </button>
+          </div>
+          <span style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
+            Paste this in your Supabase SQL Editor to provision tables & RLS policies:
+          </span>
+          <pre class="code-box" id="sql-display-box">-- Loading SQL Script...</pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close="modal-settings">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Wrapper -->
+  <div id="toast" class="toast">
+    <i data-lucide="check-circle" style="color: var(--cn-green);"></i>
+    <span id="toast-text">Pound it! Action completed! 👊</span>
+  </div>
+
+  <!-- Main ES Module Script -->
+  <script type="module" src="./app.js?v=2"></script>
+</body>
+</html>
