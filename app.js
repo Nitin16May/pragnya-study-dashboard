@@ -32,14 +32,13 @@ const state = {
   dailyChartDays: 7,
   marksChartSubject: 'all',
   
-  // Stopwatch / Pomodoro Timer State
+  // Stopwatch / Pomodoro Timer State (Background & Sleep Proof)
   timer: {
     isRunning: false,
-    seconds: 0,
-    initialSeconds: 0,
-    elapsedSeconds: 0,
     mode: 'stopwatch',
-    intervalId: null,
+    initialSeconds: 0,
+    accumulatedMs: 0,
+    runStartTimestamp: null,
     subject: ICSE_SUBJECTS[0].name,
     topic: ''
   }
@@ -832,8 +831,251 @@ function renderFullMarksTable() {
 }
 
 // ==============================================================================
-// LIVE STUDY STOPWATCH / POMODORO ("Spots On!" Mode)
+// LIVE STUDY STOPWATCH / POMODORO ("Spots On!" Mode - Background & Sleep Proof)
 // ==============================================================================
+let timerWorker = null;
+let timerInterval = null;
+let wakeLockSentinel = null;
+const TIMER_STORAGE_KEY = 'pragnya_focus_timer_state_v2';
+
+// Cleanly resets the focus timer to idle state and clears background tickers
+export function resetFocusTimer() {
+  stopTicker();
+  releaseWakeLock();
+
+  state.timer.isRunning = false;
+  state.timer.runStartTimestamp = null;
+  state.timer.accumulatedMs = 0;
+
+  const toggleText = document.getElementById('timer-toggle-text');
+  const toggleIcon = document.getElementById('timer-toggle-icon');
+  const yoyoIcon = document.getElementById('yoyo-icon');
+  const activeLabel = document.getElementById('timer-active-label');
+  const saveBtn = document.getElementById('timer-save-btn');
+  const display = document.getElementById('timer-display');
+
+  if (toggleText) toggleText.textContent = 'Spots On! (Start)';
+  if (toggleIcon) toggleIcon.setAttribute('data-lucide', 'play');
+  if (yoyoIcon) yoyoIcon.classList.remove('active');
+  if (activeLabel) activeLabel.textContent = 'Ready for Study Session';
+  if (saveBtn) saveBtn.setAttribute('disabled', 'true');
+  if (display) {
+    if (state.timer.mode === 'countdown' && state.timer.initialSeconds > 0) {
+      const hrs = String(Math.floor(state.timer.initialSeconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((state.timer.initialSeconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(state.timer.initialSeconds % 60).padStart(2, '0');
+      display.textContent = `${hrs}:${mins}:${secs}`;
+    } else {
+      display.textContent = '00:00:00';
+    }
+  }
+
+  document.title = "Pragnya ICSE 10th Study & Marks Tracker • Miraculous Ladybug Edition";
+
+  clearTimerStorage();
+  safeCreateIcons();
+}
+
+// Prevents device screen from going to sleep while studying
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && !wakeLockSentinel) {
+      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      wakeLockSentinel.addEventListener('release', () => {
+        wakeLockSentinel = null;
+      });
+    }
+  } catch (e) {
+    // Wake Lock not supported or denied by browser power settings, gracefully ignore
+  }
+}
+
+function releaseWakeLock() {
+  if (wakeLockSentinel) {
+    try { wakeLockSentinel.release(); } catch (e) {}
+    wakeLockSentinel = null;
+  }
+}
+
+// Synthesizes a pleasant Miraculous Ladybug victory chime when Pomodoro finishes
+function playTimerChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    // Miraculous Ladybug fanfare notes (C5 -> E5 -> G5 -> C6)
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+
+      const startTime = now + idx * 0.14;
+      const stopTime = startTime + 0.35;
+
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, stopTime);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(stopTime);
+    });
+  } catch (e) {
+    // Autoplay restrictions or unavailable audio context
+  }
+}
+
+// Saves running timer to local storage so page reload/accidental close never loses state
+function saveTimerStorage() {
+  try {
+    const subjectSelect = document.getElementById('timer-subject-select');
+    const topicInput = document.getElementById('timer-topic-input');
+    const data = {
+      isRunning: state.timer.isRunning,
+      mode: state.timer.mode,
+      initialSeconds: state.timer.initialSeconds,
+      accumulatedMs: state.timer.accumulatedMs,
+      runStartTimestamp: state.timer.runStartTimestamp,
+      subject: subjectSelect ? subjectSelect.value : state.timer.subject,
+      topic: topicInput ? topicInput.value : state.timer.topic
+    };
+    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {}
+}
+
+function clearTimerStorage() {
+  try {
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+  } catch (e) {}
+}
+
+// Total elapsed milliseconds calculated using true wall-clock time
+function getElapsedMs() {
+  let ms = state.timer.accumulatedMs || 0;
+  if (state.timer.isRunning && state.timer.runStartTimestamp) {
+    ms += Math.max(0, Date.now() - state.timer.runStartTimestamp);
+  }
+  return ms;
+}
+
+// Display seconds (counting down or counting up)
+function getDisplaySeconds() {
+  const elapsedSecs = Math.floor(getElapsedMs() / 1000);
+  if (state.timer.mode === 'countdown') {
+    return Math.max(0, state.timer.initialSeconds - elapsedSecs);
+  } else {
+    return elapsedSecs;
+  }
+}
+
+// Total actual elapsed study minutes for the database log
+function getTotalElapsedMinutes() {
+  const elapsedSecs = Math.floor(getElapsedMs() / 1000);
+  return Math.max(1, Math.round(elapsedSecs / 60));
+}
+
+// Updates the big screen digits and the tab title
+function updateTimerDisplay() {
+  const display = document.getElementById('timer-display');
+  if (!display) return;
+  const totalSecs = getDisplaySeconds();
+  const hrs = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+  const secs = String(totalSecs % 60).padStart(2, '0');
+  display.textContent = `${hrs}:${mins}:${secs}`;
+
+  if (state.timer.isRunning) {
+    document.title = `⏱️ ${hrs}:${mins}:${secs} • Pragnya's ICSE Study HQ`;
+  } else {
+    document.title = "Pragnya ICSE 10th Study & Marks Tracker • Miraculous Ladybug Edition";
+  }
+}
+
+// Periodic ticker triggered by Web Worker or window interval
+function onTimerTick() {
+  if (!state.timer.isRunning) return;
+
+  const displaySecs = getDisplaySeconds();
+  updateTimerDisplay();
+
+  // If countdown mode has reached 0:00
+  if (state.timer.mode === 'countdown' && displaySecs <= 0) {
+    // Complete session
+    state.timer.accumulatedMs = state.timer.initialSeconds * 1000;
+    state.timer.runStartTimestamp = null;
+    state.timer.isRunning = false;
+
+    stopTicker();
+    releaseWakeLock();
+    clearTimerStorage();
+
+    const toggleText = document.getElementById('timer-toggle-text');
+    const toggleIcon = document.getElementById('timer-toggle-icon');
+    const yoyoIcon = document.getElementById('yoyo-icon');
+    const activeLabel = document.getElementById('timer-active-label');
+
+    if (toggleText) toggleText.textContent = 'Spots On! (Start)';
+    if (toggleIcon) toggleIcon.setAttribute('data-lucide', 'play');
+    if (yoyoIcon) yoyoIcon.classList.remove('active');
+    if (activeLabel) activeLabel.textContent = '🎉 Focus Goal Completed!';
+
+    playTimerChime();
+    showToast('Spots On! Focus session completed! Pound it! 👊', true);
+    safeCreateIcons();
+  }
+}
+
+// Web Worker + window interval dual ticker
+function startTicker() {
+  stopTicker();
+
+  // 1. Web Worker (runs in separate background thread, immune to background tab throttling)
+  if (typeof Worker !== 'undefined') {
+    try {
+      if (!timerWorker) {
+        const workerBlob = new Blob([`
+          let t = null;
+          self.onmessage = function(e) {
+            if (e.data === 'start') {
+              if (t) clearInterval(t);
+              t = setInterval(() => self.postMessage('tick'), 500);
+            } else if (e.data === 'stop') {
+              if (t) clearInterval(t);
+              t = null;
+            }
+          };
+        `], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(workerBlob);
+        timerWorker = new Worker(workerUrl);
+        timerWorker.onmessage = () => onTimerTick();
+      }
+      timerWorker.postMessage('start');
+    } catch (e) {
+      console.warn('Web Worker fallback to window timer:', e);
+      timerWorker = null;
+    }
+  }
+
+  // 2. Standard interval fallback
+  timerInterval = setInterval(() => onTimerTick(), 500);
+}
+
+function stopTicker() {
+  if (timerWorker) {
+    try { timerWorker.postMessage('stop'); } catch (e) {}
+  }
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
 function setupTimer() {
   const toggleBtn = document.getElementById('timer-toggle-btn');
   const toggleIcon = document.getElementById('timer-toggle-icon');
@@ -846,92 +1088,105 @@ function setupTimer() {
   const activeLabel = document.getElementById('timer-active-label');
   const yoyoIcon = document.getElementById('yoyo-icon');
 
-  function updateDisplay() {
-    const hrs = String(Math.floor(state.timer.seconds / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((state.timer.seconds % 3600) / 60)).padStart(2, '0');
-    const secs = String(state.timer.seconds % 60).padStart(2, '0');
-    display.textContent = `${hrs}:${mins}:${secs}`;
-  }
+  if (!toggleBtn || !display) return;
 
+  // Re-sync instantly when screen turns on, tab changes visibility, or window gains focus
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (state.timer.isRunning) {
+        requestWakeLock();
+        onTimerTick();
+      } else {
+        updateTimerDisplay();
+      }
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    if (state.timer.isRunning) {
+      onTimerTick();
+    } else {
+      updateTimerDisplay();
+    }
+  });
+
+  window.addEventListener('pageshow', () => {
+    if (state.timer.isRunning) {
+      onTimerTick();
+    } else {
+      updateTimerDisplay();
+    }
+  });
+
+  // START / PAUSE
   toggleBtn.addEventListener('click', () => {
     if (state.timer.isRunning) {
       // Pause
-      clearInterval(state.timer.intervalId);
+      state.timer.accumulatedMs += Math.max(0, Date.now() - state.timer.runStartTimestamp);
+      state.timer.runStartTimestamp = null;
       state.timer.isRunning = false;
+
+      stopTicker();
+      releaseWakeLock();
+
       toggleText.textContent = 'Resume Spots On!';
       toggleIcon.setAttribute('data-lucide', 'play');
       yoyoIcon.classList.remove('active');
       activeLabel.textContent = 'Session Paused';
+
+      saveTimerStorage();
+      updateTimerDisplay();
     } else {
-      // Start
+      // Start / Resume
       state.timer.isRunning = true;
+      state.timer.runStartTimestamp = Date.now();
+
       toggleText.textContent = 'Pause Timer';
       toggleIcon.setAttribute('data-lucide', 'pause');
       yoyoIcon.classList.add('active');
       saveBtn.removeAttribute('disabled');
-      
+
       const sub = subjectSelect.value;
       activeLabel.textContent = `Studying ${sub}`;
 
-      state.timer.intervalId = setInterval(() => {
-        if (state.timer.mode === 'countdown') {
-          if (state.timer.seconds > 0) {
-            state.timer.seconds--;
-            state.timer.elapsedSeconds++;
-            updateDisplay();
-          } else {
-            // Countdown reached 0
-            clearInterval(state.timer.intervalId);
-            state.timer.isRunning = false;
-            toggleText.textContent = 'Spots On! (Start)';
-            toggleIcon.setAttribute('data-lucide', 'play');
-            yoyoIcon.classList.remove('active');
-            activeLabel.textContent = '🎉 Focus Goal Completed!';
-            showToast('Spots On! Focus session completed! Pound it! 👊');
-            safeCreateIcons();
-          }
-        } else {
-          state.timer.seconds++;
-          state.timer.elapsedSeconds++;
-          updateDisplay();
-        }
-      }, 1000);
+      requestWakeLock();
+      startTicker();
+      saveTimerStorage();
+      updateTimerDisplay();
     }
     safeCreateIcons();
   });
 
+  // RESET
   resetBtn.addEventListener('click', () => {
-    clearInterval(state.timer.intervalId);
-    state.timer.isRunning = false;
-    state.timer.seconds = state.timer.mode === 'countdown' ? state.timer.initialSeconds : 0;
-    state.timer.elapsedSeconds = 0;
-    updateDisplay();
-    toggleText.textContent = 'Spots On! (Start)';
-    toggleIcon.setAttribute('data-lucide', 'play');
-    yoyoIcon.classList.remove('active');
-    activeLabel.textContent = 'Ready for Study Session';
-    saveBtn.setAttribute('disabled', 'true');
-    safeCreateIcons();
+    resetFocusTimer();
   });
 
+  // COMPLETE & SAVE SESSION
   saveBtn.addEventListener('click', () => {
-    const totalElapsedSecs = state.timer.mode === 'countdown' ? state.timer.elapsedSeconds : state.timer.seconds;
-    const elapsedMinutes = Math.max(Math.round(totalElapsedSecs / 60), 1);
-    
-    // Pause timer
+    const elapsedMinutes = getTotalElapsedMinutes();
+
+    // Pause timer if running
     if (state.timer.isRunning) {
-      clearInterval(state.timer.intervalId);
+      state.timer.accumulatedMs += Math.max(0, Date.now() - state.timer.runStartTimestamp);
+      state.timer.runStartTimestamp = null;
       state.timer.isRunning = false;
-      toggleText.textContent = 'Spots On! (Start)';
+
+      stopTicker();
+      releaseWakeLock();
+
+      toggleText.textContent = 'Resume Spots On!';
       toggleIcon.setAttribute('data-lucide', 'play');
       yoyoIcon.classList.remove('active');
       safeCreateIcons();
     }
 
+    saveTimerStorage();
+
     // Open Manual Time Logging Modal with pre-filled duration, subject, and topic!
     document.getElementById('input-session-subject').value = subjectSelect.value;
     document.getElementById('input-session-topic').value = topicInput.value || '';
-    
+
     const hrs = Math.floor(elapsedMinutes / 60);
     const mins = elapsedMinutes % 60;
     document.getElementById('input-session-hours').value = hrs > 0 ? hrs : '';
@@ -944,37 +1199,110 @@ function setupTimer() {
     if (state.timer.isRunning) {
       activeLabel.textContent = `Studying ${subjectSelect.value}`;
     }
+    saveTimerStorage();
   });
 
-  // Preset buttons (Pomodoro 25m, 45m, 60m, 90m, Stopwatch)
+  topicInput.addEventListener('input', () => {
+    saveTimerStorage();
+  });
+
+  // PRESET BUTTONS (Pomodoro 25m, 45m, 60m, 90m, Stopwatch)
   document.querySelectorAll('.preset-pill-btn').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.preset-pill-btn').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-      
+
       const preset = pill.getAttribute('data-preset');
-      clearInterval(state.timer.intervalId);
+      stopTicker();
+      releaseWakeLock();
+
       state.timer.isRunning = false;
+      state.timer.runStartTimestamp = null;
+      state.timer.accumulatedMs = 0;
+
       toggleText.textContent = 'Spots On! (Start)';
       toggleIcon.setAttribute('data-lucide', 'play');
       yoyoIcon.classList.remove('active');
+      activeLabel.textContent = 'Ready for Study Session';
+      saveBtn.setAttribute('disabled', 'true');
 
       if (preset === 'stopwatch') {
         state.timer.mode = 'stopwatch';
-        state.timer.seconds = 0;
         state.timer.initialSeconds = 0;
-        state.timer.elapsedSeconds = 0;
       } else {
         const mins = Number(preset);
         state.timer.mode = 'countdown';
-        state.timer.seconds = mins * 60;
         state.timer.initialSeconds = mins * 60;
-        state.timer.elapsedSeconds = 0;
       }
-      updateDisplay();
+
+      saveTimerStorage();
+      updateTimerDisplay();
       safeCreateIcons();
     });
   });
+
+  // RESTORE FROM STORAGE IF PREVIOUSLY RUNNING/PAUSED
+  restoreTimerState();
+
+  function restoreTimerState() {
+    try {
+      const raw = localStorage.getItem(TIMER_STORAGE_KEY);
+      if (!raw) {
+        updateTimerDisplay();
+        return false;
+      }
+      const data = JSON.parse(raw);
+      if (!data) {
+        updateTimerDisplay();
+        return false;
+      }
+
+      state.timer.mode = data.mode || 'stopwatch';
+      state.timer.initialSeconds = Number(data.initialSeconds) || 0;
+      state.timer.accumulatedMs = Number(data.accumulatedMs) || 0;
+      state.timer.runStartTimestamp = data.runStartTimestamp ? Number(data.runStartTimestamp) : null;
+      state.timer.isRunning = Boolean(data.isRunning);
+
+      if (data.subject && subjectSelect) subjectSelect.value = data.subject;
+      if (data.topic && topicInput) topicInput.value = data.topic;
+
+      // Update preset pills active state
+      document.querySelectorAll('.preset-pill-btn').forEach(pill => {
+        const p = pill.getAttribute('data-preset');
+        if (state.timer.mode === 'stopwatch' && p === 'stopwatch') {
+          pill.classList.add('active');
+        } else if (state.timer.mode === 'countdown' && Number(p) * 60 === state.timer.initialSeconds) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+
+      if (state.timer.isRunning) {
+        toggleText.textContent = 'Pause Timer';
+        toggleIcon.setAttribute('data-lucide', 'pause');
+        yoyoIcon.classList.add('active');
+        saveBtn.removeAttribute('disabled');
+        activeLabel.textContent = `Studying ${subjectSelect.value}`;
+
+        requestWakeLock();
+        startTicker();
+      } else if (state.timer.accumulatedMs > 0) {
+        toggleText.textContent = 'Resume Spots On!';
+        toggleIcon.setAttribute('data-lucide', 'play');
+        yoyoIcon.classList.remove('active');
+        activeLabel.textContent = 'Session Paused';
+        saveBtn.removeAttribute('disabled');
+      }
+
+      updateTimerDisplay();
+      safeCreateIcons();
+      return true;
+    } catch (e) {
+      updateTimerDisplay();
+      return false;
+    }
+  }
 }
 
 // ==============================================================================
@@ -1120,11 +1448,8 @@ function setupEventListeners() {
     e.target.reset();
     document.getElementById('input-session-date').value = new Date().toISOString().split('T')[0];
 
-    // Reset live stopwatch if saved from timer
-    const saveBtn = document.getElementById('timer-save-btn');
-    saveBtn.setAttribute('disabled', 'true');
-    state.timer.seconds = 0;
-    document.getElementById('timer-display').textContent = '00:00:00';
+    // Reset live stopwatch / pomodoro timer if saved
+    resetFocusTimer();
 
     showToast("Pound it! 👊 Study session logged successfully!", true);
     await refreshData();
