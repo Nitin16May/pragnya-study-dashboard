@@ -22,7 +22,7 @@ A high-performance, zero-build client-side web application designed for **Pragny
 - ☁️ **Supabase Cloud Sync (Zero Node)**:
   - Connects directly to Supabase using client-side ES Modules (`@supabase/supabase-js`).
   - URL and Anon Key stored securely in browser `localStorage`.
-  - Built-in offline demo mode with sample ICSE data if disconnected.
+  - Built-in offline local storage fallback if disconnected.
   - In-app SQL Schema viewer and copy button.
 
 ---
@@ -62,7 +62,7 @@ This project has no build steps and runs purely on HTML, CSS, and modern JavaScr
 ## 🔑 Step 3: Connect Supabase in the Web App
 
 1. Open the website on your phone, tablet, or laptop.
-2. Click the **Settings (Demo Mode)** button in the top right.
+2. Click the **Database Settings** button in the top right.
 3. Paste your **Supabase Project URL** and **Anon Key**.
 4. Click **Save & Test Connection**.
 5. Done! You will see the green "Supabase Connected" indicator. All logged sessions and sample paper scores will now sync live!

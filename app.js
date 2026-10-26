@@ -16,9 +16,7 @@ import {
   saveSupabaseConfig,
   clearSupabaseConfig,
   testConnection,
-  clearAllLocalData,
-  loadDemoData,
-  isDemoPreviewActive
+  clearAllLocalData
 } from './supabase-client.js';
 import {
   configureChartDefaults,
@@ -644,19 +642,7 @@ function renderRecentSessionsSnippet() {
 
   const recent = state.sessions.slice(0, 5);
   if (recent.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty-state">
-          No study sessions logged yet. Start the <strong>Spots On!</strong> timer above, click <strong>"Log Time"</strong>, or 
-          <button class="btn btn-outline" id="btn-snippet-load-demo" style="display: inline-flex; padding: 4px 10px; font-size: 12px; margin: 0 4px;">Load Sample ICSE Data</button> to preview the dashboard!
-        </td>
-      </tr>
-    `;
-    document.getElementById('btn-snippet-load-demo')?.addEventListener('click', async () => {
-      loadDemoData();
-      showToast("Loaded sample ICSE data! 🐞✨", true);
-      await refreshData();
-    });
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No study sessions logged yet today. Click "Log Time" or start the Spots On! timer above!</td></tr>`;
     return;
   }
 
@@ -709,29 +695,7 @@ function renderFullSessionsTable() {
   }
 
   if (filtered.length === 0) {
-    if (state.sessions.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-state" style="padding: 30px 15px;">
-            <div style="font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px;">No study sessions logged yet 🐞</div>
-            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
-              Start the <strong>Spots On!</strong> timer or log a completed session to begin tracking.
-            </div>
-            <button class="btn btn-outline" id="btn-empty-load-demo-sessions" style="margin: 0 auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 14px;">
-              <i data-lucide="sparkles"></i> Load Sample ICSE Data (Preview Charts)
-            </button>
-          </td>
-        </tr>
-      `;
-      document.getElementById('btn-empty-load-demo-sessions')?.addEventListener('click', async () => {
-        loadDemoData();
-        showToast("Loaded sample ICSE study data! 🐞✨", true);
-        await refreshData();
-      });
-      safeCreateIcons();
-      return;
-    }
-    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No matching study sessions found for the current search/filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No matching study sessions recorded. Click "Log Time" or start the Spots On! timer above!</td></tr>`;
     return;
   }
 
@@ -846,29 +810,7 @@ function renderFullMarksTable() {
   }
 
   if (filtered.length === 0) {
-    if (state.mockMarks.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="9" class="empty-state" style="padding: 30px 15px;">
-            <div style="font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px;">No sample paper marks recorded yet 📝</div>
-            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
-              Click <strong>"Enter Paper Marks"</strong> to add scores, or preview with sample ICSE test marks.
-            </div>
-            <button class="btn btn-outline" id="btn-empty-load-demo-marks" style="margin: 0 auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 14px;">
-              <i data-lucide="sparkles"></i> Load Sample ICSE Data (Preview Scorecard)
-            </button>
-          </td>
-        </tr>
-      `;
-      document.getElementById('btn-empty-load-demo-marks')?.addEventListener('click', async () => {
-        loadDemoData();
-        showToast("Loaded sample ICSE test papers! 🐞✨", true);
-        await refreshData();
-      });
-      safeCreateIcons();
-      return;
-    }
-    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No sample paper marks found for current search/filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No mock paper marks recorded yet. Click "Enter Marks" to log Pragnya's scores!</td></tr>`;
     return;
   }
 
@@ -1275,20 +1217,15 @@ function setupEventListeners() {
     }
   });
 
-  document.getElementById('btn-load-demo-data')?.addEventListener('click', async () => {
-    loadDemoData();
-    showToast("Loaded sample ICSE study data! 🐞✨", true);
-    closeModal('modal-settings');
-    await refreshData();
-  });
-
-  document.getElementById('btn-reset-demo-data')?.addEventListener('click', async () => {
-    if (confirm("Clear all local study logs and mock marks?")) {
+  const handleResetData = async () => {
+    if (confirm("Clear all local study logs and test marks?")) {
       clearAllLocalData();
       showToast("Cleared local data! Ready for new entries.", true);
       await refreshData();
     }
-  });
+  };
+  document.getElementById('btn-reset-local-data')?.addEventListener('click', handleResetData);
+  document.getElementById('btn-reset-demo-data')?.addEventListener('click', handleResetData);
 
   document.getElementById('btn-copy-sql')?.addEventListener('click', () => {
     const code = document.getElementById('sql-display-box')?.textContent;
@@ -1321,9 +1258,9 @@ function updateSyncStatusIndicator() {
     if (label) label.textContent = 'Supabase Connected';
   } else {
     if (dot) {
-      dot.className = 'status-dot demo';
+      dot.className = 'status-dot local';
     }
-    if (label) label.textContent = 'Local / Demo Mode';
+    if (label) label.textContent = 'Local Storage Mode';
   }
 }
 

@@ -3,7 +3,6 @@
 // Hardcoded Permanent Project Connection
 // ==============================================================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { DEMO_STUDY_SESSIONS, DEMO_MOCK_MARKS } from './data.js';
 
 export const SUPABASE_URL = 'https://enumpbtztfcfjcpayszg.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_GZlP1B3UaxB9dG1zf62MuA_csF4SmDE';
@@ -14,15 +13,16 @@ const STORAGE_KEYS = {
   ACTIVE_TIMER: 'pragnya_active_study_timer'
 };
 
-// Seed local storage with clean slate (and purge old sample mock data if present)
+// Seed local storage with clean slate (and purge old sample/demo mock data if present)
 function initializeLocalStorage() {
+  localStorage.removeItem('PRAGNYA_DEMO_PREVIEW');
   const cachedSessions = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
-  if (cachedSessions && cachedSessions.includes('"sample-')) {
-    localStorage.removeItem(STORAGE_KEYS.LOCAL_SESSIONS);
+  if (cachedSessions && (cachedSessions.includes('"demo-') || cachedSessions.includes('"sample-'))) {
+    localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
   }
   const cachedMarks = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
-  if (cachedMarks && cachedMarks.includes('"mock-')) {
-    localStorage.removeItem(STORAGE_KEYS.LOCAL_MARKS);
+  if (cachedMarks && (cachedMarks.includes('"demo-mock-') || cachedMarks.includes('CISCE Specimen Paper 2026') || cachedMarks.includes('"sample-'))) {
+    localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
   }
 
   if (!localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS)) {
@@ -98,12 +98,6 @@ export async function testConnection(url, key) {
 // ==============================================================================
 
 export async function fetchStudySessions() {
-  const isDemo = localStorage.getItem('PRAGNYA_DEMO_PREVIEW') === 'true';
-  if (isDemo) {
-    const localData = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
-    return localData ? JSON.parse(localData) : [];
-  }
-
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -115,7 +109,7 @@ export async function fetchStudySessions() {
       if (error) throw error;
       
       // Update local cache
-      localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(data || []));
       return data || [];
     } catch (err) {
       console.warn("Supabase fetch failed; falling back to local storage cache:", err);
@@ -128,12 +122,6 @@ export async function fetchStudySessions() {
 }
 
 export async function addStudySession(session) {
-  // Clear demo preview if active so real logs start cleanly
-  if (localStorage.getItem('PRAGNYA_DEMO_PREVIEW') === 'true') {
-    localStorage.removeItem('PRAGNYA_DEMO_PREVIEW');
-    localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
-  }
-
   const newSession = {
     ...session,
     id: session.id || ('sess-' + Date.now()),
@@ -206,12 +194,6 @@ function getLocalSessions() {
 // ==============================================================================
 
 export async function fetchMockMarks() {
-  const isDemo = localStorage.getItem('PRAGNYA_DEMO_PREVIEW') === 'true';
-  if (isDemo) {
-    const localData = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
-    return localData ? JSON.parse(localData) : [];
-  }
-
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -221,7 +203,7 @@ export async function fetchMockMarks() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(data || []));
       return data || [];
     } catch (err) {
       console.warn("Supabase mock marks fetch failed; fallback to local storage:", err);
@@ -233,12 +215,6 @@ export async function fetchMockMarks() {
 }
 
 export async function addMockMark(entry) {
-  // Clear demo preview if active so real logs start cleanly
-  if (localStorage.getItem('PRAGNYA_DEMO_PREVIEW') === 'true') {
-    localStorage.removeItem('PRAGNYA_DEMO_PREVIEW');
-    localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
-  }
-
   const maxMarks = Number(entry.max_marks || 80);
   const marksObt = Number(entry.marks_obtained);
   const percentage = Number(((marksObt / maxMarks) * 100).toFixed(2));
@@ -313,20 +289,9 @@ function getLocalMarks() {
   return localData ? JSON.parse(localData) : [];
 }
 
-// Load demo sample data for previewing charts
-export function loadDemoData() {
-  localStorage.setItem('PRAGNYA_DEMO_PREVIEW', 'true');
-  localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(DEMO_STUDY_SESSIONS));
-  localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(DEMO_MOCK_MARKS));
-}
-
 // Reset / Clear local data
 export function clearAllLocalData() {
   localStorage.removeItem('PRAGNYA_DEMO_PREVIEW');
   localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
   localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
-}
-
-export function isDemoPreviewActive() {
-  return localStorage.getItem('PRAGNYA_DEMO_PREVIEW') === 'true';
 }
