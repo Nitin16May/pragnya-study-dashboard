@@ -727,10 +727,10 @@ function renderSubjectHoursRankList() {
     const pct = Math.round((item.hours / maxHours) * 100);
 
     return `
-      <div style="display: flex; flex-direction: column; gap: 4px; padding: 6px 10px; background: var(--bg-surface); border-radius: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
-          <span style="font-weight: 600; color: #fff;">${escapeHtml(item.subject)}</span>
-          <span style="color: ${color}; font-weight: 700;">${item.hours} hrs</span>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 6px 10px; background: var(--bg-surface); border-radius: 8px; min-width: 0; overflow: hidden;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 8px;">
+          <span style="font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">${escapeHtml(item.subject)}</span>
+          <span style="color: ${color}; font-weight: 700; flex-shrink: 0;">${item.hours} hrs</span>
         </div>
         <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
           <div style="width: ${pct}%; height: 100%; background: ${color}; border-radius: 4px;"></div>
