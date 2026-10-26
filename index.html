@@ -11,7 +11,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23E51A4C%22/><circle cx=%2232%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2268%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2250%22 cy=%2265%22 r=%229%22 fill=%22%23111%22/></svg>">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./app.css?v=7">
+  <link rel="stylesheet" href="./app.css?v=8">
 
   <!-- External CDNs: Chart.js & Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -99,10 +99,6 @@
       <button class="tab-btn" data-tab="mock-marks">
         <i data-lucide="award" style="width: 16px; height: 16px;"></i>
         Sample Paper Marks (Best of 5)
-      </button>
-      <button class="tab-btn" data-tab="syllabus">
-        <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
-        ICSE Syllabus & Chapters
       </button>
     </nav>
 
@@ -486,29 +482,6 @@
 
     </main>
 
-    <!-- ==============================================================================
-         TAB 4: ICSE SYLLABUS & CHAPTERS BROWSER
-         ============================================================================== -->
-    <main id="tab-syllabus" class="tab-content" style="display: none;">
-      
-      <div class="table-card" style="margin-bottom: 20px;">
-        <div class="chart-title-group">
-          <h3 class="chart-title" style="display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="book-open" style="color: var(--lb-red); width: 20px; height: 20px;"></i>
-            Pragnya's ICSE 10th Curriculum & Syllabus Tracker
-          </h3>
-          <span class="chart-subtitle">
-            Browse all topics across your 10 ICSE subjects. Click "Study Topic" to automatically set it in your timer or log a session!
-          </span>
-        </div>
-      </div>
-
-      <div class="syllabus-grid" id="syllabus-grid-container">
-        <!-- Rendered dynamically via JS -->
-      </div>
-
-    </main>
-
   </div> <!-- End App Container -->
 
   <!-- ==============================================================================
@@ -727,6 +700,6 @@
   </div>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="./app.js?v=7"></script>
+  <script type="module" src="./app.js?v=8"></script>
 </body>
 </html>
