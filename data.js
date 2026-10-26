@@ -289,3 +289,168 @@ function getPastDate(daysAgo) {
 // Start with clean slate for Pragnya's real logs
 export const SAMPLE_STUDY_SESSIONS = [];
 export const SAMPLE_MOCK_MARKS = [];
+
+// Demo data available on-demand if the user wants to preview charts and features
+export const DEMO_STUDY_SESSIONS = [
+  {
+    id: 'demo-1',
+    student_name: 'Pragnya',
+    subject: 'Computer Applications (Optional)',
+    chapter_topic: 'Bubble Sort & Selection Sort in Java',
+    duration_minutes: 90,
+    study_date: getPastDate(0),
+    study_type: 'Problem Solving',
+    efficiency_rating: 5,
+    notes: 'Practiced 1D String array alphabet sorting. Clean dry run!'
+  },
+  {
+    id: 'demo-2',
+    student_name: 'Pragnya',
+    subject: 'Mathematics',
+    chapter_topic: 'Circles - Tangents & Alternate Segment',
+    duration_minutes: 80,
+    study_date: getPastDate(0),
+    study_type: 'Problem Solving',
+    efficiency_rating: 5,
+    notes: 'Solved 12 board questions from ML Aggarwal.'
+  },
+  {
+    id: 'demo-3',
+    student_name: 'Pragnya',
+    subject: 'Physics',
+    chapter_topic: 'Refraction through Lenses & Sign Conventions',
+    duration_minutes: 70,
+    study_date: getPastDate(1),
+    study_type: 'Revision',
+    efficiency_rating: 4,
+    notes: 'Practiced ray diagrams for concave and convex lenses.'
+  },
+  {
+    id: 'demo-4',
+    student_name: 'Pragnya',
+    subject: 'Chemistry',
+    chapter_topic: 'Organic Chemistry - Alkanes & IUPAC Naming',
+    duration_minutes: 85,
+    study_date: getPastDate(1),
+    study_type: 'Self Study',
+    efficiency_rating: 4,
+    notes: 'Drew isomers of Pentane and Butene.'
+  },
+  {
+    id: 'demo-5',
+    student_name: 'Pragnya',
+    subject: 'Computer Applications (Optional)',
+    chapter_topic: 'String Handling - Palindrome & Word Frequency',
+    duration_minutes: 90,
+    study_date: getPastDate(2),
+    study_type: 'Problem Solving',
+    efficiency_rating: 5,
+    notes: 'Mastered charAt() and substring() logic.'
+  },
+  {
+    id: 'demo-6',
+    student_name: 'Pragnya',
+    subject: 'History & Civics',
+    chapter_topic: 'Union Parliament & Powers of Rajya Sabha',
+    duration_minutes: 65,
+    study_date: getPastDate(2),
+    study_type: 'Self Study',
+    efficiency_rating: 5,
+    notes: 'Revised money bills vs ordinary bills.'
+  },
+  {
+    id: 'demo-7',
+    student_name: 'Pragnya',
+    subject: 'Biology',
+    chapter_topic: 'Circulatory System & Human Heart Anatomy',
+    duration_minutes: 90,
+    study_date: getPastDate(3),
+    study_type: 'Self Study',
+    efficiency_rating: 4,
+    notes: 'Drew labeled diagram of heart and double circulation.'
+  },
+  {
+    id: 'demo-8',
+    student_name: 'Pragnya',
+    subject: 'Mathematics',
+    chapter_topic: 'Quadratic Equations - Speed Distance Word Problems',
+    duration_minutes: 100,
+    study_date: getPastDate(4),
+    study_type: 'Problem Solving',
+    efficiency_rating: 5,
+    notes: 'Speed increase/decrease train problems solved without slips.'
+  }
+];
+
+export const DEMO_MOCK_MARKS = [
+  {
+    id: 'demo-mock-1',
+    student_name: 'Pragnya',
+    subject: 'Computer Applications (Optional)',
+    paper_name: 'CISCE Specimen Paper 2026',
+    test_date: getPastDate(1),
+    marks_obtained: 96,
+    max_marks: 100,
+    percentage: 96.0,
+    time_taken_minutes: 110,
+    weak_areas: 'Section A question on implicit vs explicit typecasting.',
+    strong_areas: 'Section B Java programs: String handling & Bubble Sort scored 60/60!',
+    notes: 'Superb result! Tikki & Cat Noir are proud!'
+  },
+  {
+    id: 'demo-mock-2',
+    student_name: 'Pragnya',
+    subject: 'Mathematics',
+    paper_name: 'Oswaal ICSE Specimen Mock 1',
+    test_date: getPastDate(2),
+    marks_obtained: 74,
+    max_marks: 80,
+    percentage: 92.5,
+    time_taken_minutes: 140,
+    weak_areas: 'Small calculation slip in Ogive median estimation.',
+    strong_areas: 'Circles tangents proof and Quadratic word problems correct.',
+    notes: 'Great speed. Re-checked all answers with 10 mins remaining.'
+  },
+  {
+    id: 'demo-mock-3',
+    student_name: 'Pragnya',
+    subject: 'Physics',
+    paper_name: 'Educart ICSE Practice Paper 1',
+    test_date: getPastDate(4),
+    marks_obtained: 72,
+    max_marks: 80,
+    percentage: 90.0,
+    time_taken_minutes: 115,
+    weak_areas: 'Radioactivity Alpha/Beta decay nuclear equations.',
+    strong_areas: 'Refraction through prisms and work-energy numericals.',
+    notes: 'Review radioactive decay laws.'
+  },
+  {
+    id: 'demo-mock-4',
+    student_name: 'Pragnya',
+    subject: 'Chemistry',
+    paper_name: 'School Prelim Paper 1',
+    test_date: getPastDate(6),
+    marks_obtained: 73,
+    max_marks: 80,
+    percentage: 91.25,
+    time_taken_minutes: 120,
+    weak_areas: 'Observation colors in analytical chemistry precipitates.',
+    strong_areas: 'Mole concept stoichiometry and Organic chemistry isomerism.',
+    notes: 'Remember Fe2+ dirty green and Fe3+ reddish brown.'
+  },
+  {
+    id: 'demo-mock-5',
+    student_name: 'Pragnya',
+    subject: 'History & Civics',
+    paper_name: 'Educart Mock Test 2',
+    test_date: getPastDate(8),
+    marks_obtained: 75,
+    max_marks: 80,
+    percentage: 93.75,
+    time_taken_minutes: 115,
+    weak_areas: 'Treaty of Versailles specific territorial loss clauses.',
+    strong_areas: 'Judiciary (Supreme Court original & appellate jurisdiction).',
+    notes: 'Structured point-wise answers scored full marks.'
+  }
+];

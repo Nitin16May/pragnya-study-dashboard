@@ -11,7 +11,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23E51A4C%22/><circle cx=%2232%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2268%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2250%22 cy=%2265%22 r=%229%22 fill=%22%23111%22/></svg>">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./app.css?v=4">
+  <link rel="stylesheet" href="./app.css?v=5">
 
   <!-- External CDNs: Chart.js & Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -692,8 +692,13 @@
         </div>
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <button class="btn btn-outline" id="btn-reset-demo-data">
-            Clear All Local Data
+          <button class="btn btn-primary" id="btn-load-demo-data">
+            <i data-lucide="sparkles"></i>
+            Load Demo Data (Preview Charts)
+          </button>
+          <button class="btn btn-outline" id="btn-reset-demo-data" style="color: #ff6b6b; border-color: rgba(255,107,107,0.3);">
+            <i data-lucide="trash-2"></i>
+            Clear All Data
           </button>
         </div>
 
@@ -726,6 +731,6 @@
   </div>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="./app.js?v=4"></script>
+  <script type="module" src="./app.js?v=5"></script>
 </body>
 </html>
