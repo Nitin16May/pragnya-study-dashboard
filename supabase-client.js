@@ -35,10 +35,19 @@ initializeLocalStorage();
 
 export const supabaseUrl = SUPABASE_URL;
 export const supabaseKey = SUPABASE_KEY;
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let client = null;
+try {
+  if (typeof createClient === 'function') {
+    client = createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+} catch (e) {
+  console.warn("Supabase init warning:", e);
+}
+export const supabase = client;
 
 export function isSupabaseConnected() {
-  return true;
+  return !!supabase;
 }
 
 export function getSupabaseConfig() {
@@ -201,7 +210,7 @@ export async function fetchMockMarks() {
   }
 
   const localData = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
-  return localData ? JSON.parse(localData) : SAMPLE_MOCK_MARKS;
+  return localData ? JSON.parse(localData) : [];
 }
 
 export async function addMockMark(entry) {

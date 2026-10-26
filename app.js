@@ -47,23 +47,53 @@ const state = {
   }
 };
 
+// Safe Lucide icon renderer that never throws
+export function safeCreateIcons() {
+  if (typeof window !== 'undefined' && typeof window.lucide !== 'undefined' && window.lucide.createIcons) {
+    try {
+      window.lucide.createIcons();
+    } catch (e) {
+      console.warn("Lucide icon generation error:", e);
+    }
+  }
+}
+
 // ==============================================================================
 // INITIALIZATION
 // ==============================================================================
-document.addEventListener('DOMContentLoaded', async () => {
-  configureChartDefaults();
-  populateDropdowns();
-  setupEventListeners();
-  setupTimer();
-  updateSyncStatusIndicator();
-  displayRandomQuote();
-  updateExamCountdown();
-  loadSqlSchemaDisplay();
+let isInitialized = false;
 
-  // Load initial data
-  await refreshData();
-  lucide.createIcons();
-});
+async function initDashboard() {
+  if (isInitialized) return;
+  isInitialized = true;
+
+  try {
+    configureChartDefaults();
+    populateDropdowns();
+    setupEventListeners();
+    setupTimer();
+    updateSyncStatusIndicator();
+    displayRandomQuote();
+    updateExamCountdown();
+    loadSqlSchemaDisplay();
+
+    // Render local initial state immediately so all UI is interactive
+    renderActiveTabContent();
+    safeCreateIcons();
+
+    // Fetch data asynchronously in the background
+    await refreshData();
+  } catch (err) {
+    console.error("Dashboard initialization error:", err);
+  }
+}
+
+// Ensure startup runs whether DOMContentLoaded already fired or not
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+  initDashboard();
+}
 
 // Refresh both datasets from Supabase / Local storage
 async function refreshData() {
@@ -77,10 +107,9 @@ async function refreshData() {
 
     updateKPIs();
     renderActiveTabContent();
-    lucide.createIcons();
+    safeCreateIcons();
   } catch (err) {
-    console.error("Error refreshing dashboard data:", err);
-    showToast("Error updating study data", false);
+    console.warn("Error refreshing dashboard data:", err);
   }
 }
 
@@ -441,7 +470,7 @@ function renderSyllabusTab() {
     });
   });
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // ==============================================================================
@@ -480,7 +509,7 @@ function renderIcseBoardScorecard() {
         </div>
       </div>
     `).join('');
-    lucide.createIcons();
+    safeCreateIcons();
     return;
   }
 
@@ -599,7 +628,7 @@ function renderIcseBoardScorecard() {
     `;
   }).join('');
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
           <div>
             <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</div>
@@ -617,7 +646,7 @@ function renderIcseBoardScorecard() {
     `;
   }).join('');
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // ==============================================================================
@@ -660,7 +689,7 @@ function renderRecentSessionsSnippet() {
     `;
   }).join('');
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // 2. Full Sessions Table in Time Measurement Tab
@@ -732,7 +761,7 @@ function renderFullSessionsTable() {
     });
   });
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // 3. Subject Hours Ranking List (in Time Analytics Tab)
@@ -854,7 +883,7 @@ function renderFullMarksTable() {
     });
   });
 
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // ==============================================================================
@@ -904,7 +933,7 @@ function setupTimer() {
         updateDisplay();
       }, 1000);
     }
-    lucide.createIcons();
+    safeCreateIcons();
   });
 
   resetBtn.addEventListener('click', () => {
@@ -917,7 +946,7 @@ function setupTimer() {
     yoyoIcon.classList.remove('active');
     activeLabel.textContent = 'Ready for Study Session';
     saveBtn.setAttribute('disabled', 'true');
-    lucide.createIcons();
+    safeCreateIcons();
   });
 
   saveBtn.addEventListener('click', () => {
@@ -930,7 +959,7 @@ function setupTimer() {
       toggleText.textContent = 'Spots On! (Start)';
       toggleIcon.setAttribute('data-lucide', 'play');
       yoyoIcon.classList.remove('active');
-      lucide.createIcons();
+      safeCreateIcons();
     }
 
     // Open Manual Time Logging Modal with pre-filled duration, subject, and topic!
@@ -971,7 +1000,7 @@ function setupTimer() {
         state.timer.seconds = mins * 60;
       }
       updateDisplay();
-      lucide.createIcons();
+      safeCreateIcons();
     });
   });
 }
@@ -997,7 +1026,7 @@ function setupEventListeners() {
       if (targetContent) targetContent.style.display = 'block';
 
       renderActiveTabContent();
-      lucide.createIcons();
+      safeCreateIcons();
     });
   });
 
