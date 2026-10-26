@@ -1,14 +1,13 @@
 // ==============================================================================
 // SUPABASE CLIENT INTEGRATION - PRAGNYA ICSE STUDY TRACKER
+// Hardcoded Permanent Project Connection
 // ==============================================================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-export const DEFAULT_SUPABASE_URL = 'https://enumpbtztfcfjcpayszg.supabase.co';
-export const DEFAULT_SUPABASE_KEY = 'sb_publishable_GZlP1B3UaxB9dG1zf62MuA_csF4SmDE';
+export const SUPABASE_URL = 'https://enumpbtztfcfjcpayszg.supabase.co';
+export const SUPABASE_KEY = 'sb_publishable_GZlP1B3UaxB9dG1zf62MuA_csF4SmDE';
 
 const STORAGE_KEYS = {
-  URL: 'pragnya_study_supabase_url',
-  KEY: 'pragnya_study_supabase_key',
   LOCAL_SESSIONS: 'pragnya_study_sessions_cache',
   LOCAL_MARKS: 'pragnya_mock_marks_cache',
   ACTIVE_TIMER: 'pragnya_active_study_timer'
@@ -34,48 +33,29 @@ function initializeLocalStorage() {
 }
 initializeLocalStorage();
 
-export let supabaseUrl = localStorage.getItem(STORAGE_KEYS.URL) || DEFAULT_SUPABASE_URL;
-export let supabaseKey = localStorage.getItem(STORAGE_KEYS.KEY) || DEFAULT_SUPABASE_KEY;
-export let supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+export const supabaseUrl = SUPABASE_URL;
+export const supabaseKey = SUPABASE_KEY;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export function isSupabaseConnected() {
-  return !!supabase;
+  return true;
 }
 
 export function getSupabaseConfig() {
   return {
-    url: supabaseUrl,
-    key: supabaseKey,
-    isConnected: !!supabase
+    url: SUPABASE_URL,
+    key: SUPABASE_KEY,
+    isConnected: true
   };
 }
 
-export function saveSupabaseConfig(url, key) {
-  supabaseUrl = (url || '').trim();
-  supabaseKey = (key || '').trim();
-
-  if (supabaseUrl && supabaseKey) {
-    localStorage.setItem(STORAGE_KEYS.URL, supabaseUrl);
-    localStorage.setItem(STORAGE_KEYS.KEY, supabaseKey);
-    try {
-      supabase = createClient(supabaseUrl, supabaseKey);
-    } catch (e) {
-      console.error("Error creating Supabase client:", e);
-      supabase = null;
-    }
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.URL);
-    localStorage.removeItem(STORAGE_KEYS.KEY);
-    supabase = null;
-  }
+export function saveSupabaseConfig() {
+  // Hardcoded
+  return true;
 }
 
 export function clearSupabaseConfig() {
-  localStorage.removeItem(STORAGE_KEYS.URL);
-  localStorage.removeItem(STORAGE_KEYS.KEY);
-  supabaseUrl = '';
-  supabaseKey = '';
-  supabase = null;
+  // Hardcoded
 }
 
 // Test live connection to verify credentials and table existence

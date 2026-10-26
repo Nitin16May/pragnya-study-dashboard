@@ -384,126 +384,151 @@ body {
 }
 
 /* ==============================================================================
-   LIVE STUDY TIMER WIDGET ("Spots On!" Mode)
+   LIVE STUDY TIMER WIDGET ("Spots On!" Dedicated Focus Room)
    ============================================================================== */
-.live-timer-widget {
+.focus-timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(145deg, #181b29 0%, #11131e 100%);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-lg);
-  padding: 20px 24px;
+  padding: 36px 24px;
   margin-bottom: 28px;
-  box-shadow: var(--shadow-card);
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 24px;
-  align-items: center;
-}
-
-@media (max-width: 900px) {
-  .live-timer-widget {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-}
-
-.timer-yoyo-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--lb-red) 35%, #8B0024 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px var(--lb-red-glow);
+  box-shadow: var(--shadow-card), 0 0 35px rgba(229, 26, 76, 0.12);
+  text-align: center;
   position: relative;
-  margin: 0 auto;
+  overflow: hidden;
 }
 
-.timer-yoyo-icon.active {
-  animation: pulse-yoyo 2s infinite ease-in-out;
-}
-
-@keyframes pulse-yoyo {
-  0% { transform: scale(1); box-shadow: 0 0 15px var(--lb-red-glow); }
-  50% { transform: scale(1.08); box-shadow: 0 0 35px var(--lb-red-glow); }
-  100% { transform: scale(1); box-shadow: 0 0 15px var(--lb-red-glow); }
-}
-
-.timer-center {
+.focus-preset-pills {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.timer-display-row {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
+  gap: 10px;
+  justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.timer-digits {
-  font-family: 'Fredoka', monospace;
-  font-size: 38px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 2px;
-  text-shadow: 0 0 15px rgba(255, 46, 99, 0.4);
-}
-
-.timer-subject-pill {
+.preset-pill-btn {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  padding: 4px 12px;
+  color: var(--text-secondary);
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   font-size: 13px;
   font-weight: 600;
-  color: var(--lb-pink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-main);
 }
 
-.timer-inputs-row {
+.preset-pill-btn:hover {
+  border-color: var(--lb-red);
+  color: #fff;
+}
+
+.preset-pill-btn.active {
+  background: linear-gradient(135deg, var(--lb-red) 0%, var(--lb-red-dark) 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 10px var(--lb-red-glow);
+}
+
+.focus-timer-digits {
+  font-family: 'Fredoka', monospace;
+  font-size: 64px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 3px;
+  text-shadow: 0 0 25px rgba(255, 46, 99, 0.45);
+  margin: 12px 0 18px;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .focus-timer-digits {
+    font-size: 48px;
+  }
+}
+
+.focus-timer-inputs {
   display: flex;
-  gap: 12px;
-  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 580px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.focus-timer-controls {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
-.timer-select {
-  background: var(--bg-input);
+/* Syllabus Browser Styles */
+.syllabus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.syllabus-subject-card {
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  padding: 8px 12px;
   border-radius: var(--radius-md);
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-  font-family: var(--font-main);
-}
-
-.timer-select:focus {
-  border-color: var(--lb-red);
-}
-
-.timer-input {
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  outline: none;
-  font-family: var(--font-main);
-  min-width: 200px;
-}
-
-.timer-input:focus {
-  border-color: var(--lb-red);
-}
-
-.timer-actions {
+  padding: 18px;
+  box-shadow: var(--shadow-card);
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.syllabus-chapter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.syllabus-chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.syllabus-chapter-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.btn-study-topic {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-study-topic:hover {
+  background: var(--lb-red);
+  border-color: var(--lb-red);
+  color: #fff;
 }
 
 /* ==============================================================================

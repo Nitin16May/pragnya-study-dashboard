@@ -33,7 +33,7 @@ import {
 const state = {
   sessions: [],
   mockMarks: [],
-  activeTab: 'overview',
+  activeTab: 'timer',
   dailyChartDays: 7,
   marksChartSubject: 'all',
   
@@ -363,22 +363,20 @@ function displayRandomQuote() {
 // TAB SWITCHING & CONTENT RENDERING
 // ==============================================================================
 function renderActiveTabContent() {
-  if (state.activeTab === 'overview') {
-    renderOverviewTab();
+  if (state.activeTab === 'timer') {
+    renderRecentSessionsSnippet();
   } else if (state.activeTab === 'time-analytics') {
     renderTimeAnalyticsTab();
   } else if (state.activeTab === 'mock-marks') {
     renderMockMarksTab();
+  } else if (state.activeTab === 'syllabus') {
+    renderSyllabusTab();
   }
 }
 
-function renderOverviewTab() {
+function renderTimeAnalyticsTab() {
   renderDailyStudyChart('chart-daily-study', state.sessions, state.dailyChartDays);
   renderSubjectDistributionChart('chart-subject-distribution', state.sessions);
-  renderRecentSessionsSnippet();
-}
-
-function renderTimeAnalyticsTab() {
   renderDayOfWeekChart('chart-day-of-week', state.sessions);
   renderSubjectHoursRankList();
   renderFullSessionsTable();
@@ -389,6 +387,61 @@ function renderMockMarksTab() {
   renderMockMarksProgressChart('chart-mock-progress', state.mockMarks, state.marksChartSubject);
   renderSubjectScoreComparisonChart('chart-subject-comparison', state.mockMarks);
   renderFullMarksTable();
+}
+
+function renderSyllabusTab() {
+  const container = document.getElementById('syllabus-grid-container');
+  if (!container) return;
+
+  container.innerHTML = ICSE_SUBJECTS.map(sub => {
+    const chaptersHtml = (sub.chapters || []).map(ch => `
+      <div class="syllabus-chapter-item">
+        <span style="flex: 1; padding-right: 8px;">${escapeHtml(ch)}</span>
+        <button class="btn-study-topic" data-subject="${escapeHtml(sub.name)}" data-topic="${escapeHtml(ch)}">
+          Study Topic ⏱️
+        </button>
+      </div>
+    `).join('');
+
+    return `
+      <div class="syllabus-subject-card" style="border-top: 3px solid ${sub.color};">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="font-size: 15px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</h4>
+            <span style="font-size: 11px; color: ${sub.color}; font-weight: 600;">${escapeHtml(sub.boardGroup)} • ${escapeHtml(sub.paper)}</span>
+          </div>
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: ${sub.badgeBg}; display: flex; align-items: center; justify-content: center; color: ${sub.color};">
+            <i data-lucide="${sub.icon}" style="width: 16px; height: 16px;"></i>
+          </div>
+        </div>
+        <div class="syllabus-chapter-list">
+          ${chaptersHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.btn-study-topic').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sub = btn.getAttribute('data-subject');
+      const topic = btn.getAttribute('data-topic');
+      
+      document.querySelector('.tab-btn[data-tab="timer"]')?.click();
+      
+      const subSelect = document.getElementById('timer-subject-select');
+      const topicInput = document.getElementById('timer-topic-input');
+      if (subSelect) subSelect.value = sub;
+      if (topicInput) topicInput.value = topic;
+      
+      const activeLabel = document.getElementById('timer-active-label');
+      if (activeLabel) activeLabel.textContent = `Ready: ${sub}`;
+      
+      showToast(`Selected: ${topic}! Click "Spots On!" to begin 🐞`, true);
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    });
+  });
+
+  lucide.createIcons();
 }
 
 // ==============================================================================
@@ -897,12 +950,39 @@ function setupTimer() {
       activeLabel.textContent = `Studying ${subjectSelect.value}`;
     }
   });
+
+  // Preset buttons (Pomodoro 25m, 45m, 60m, 90m, Stopwatch)
+  document.querySelectorAll('.preset-pill-btn').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.preset-pill-btn').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      
+      const preset = pill.getAttribute('data-preset');
+      clearInterval(state.timer.intervalId);
+      state.timer.isRunning = false;
+      toggleText.textContent = 'Spots On! (Start)';
+      toggleIcon.setAttribute('data-lucide', 'play');
+      yoyoIcon.classList.remove('active');
+
+      if (preset === 'stopwatch') {
+        state.timer.seconds = 0;
+      } else {
+        const mins = Number(preset);
+        state.timer.seconds = mins * 60;
+      }
+      updateDisplay();
+      lucide.createIcons();
+    });
+  });
 }
 
 // ==============================================================================
 // EVENT LISTENERS & MODALS
 // ==============================================================================
 function setupEventListeners() {
+  // Quick Add Today button
+  document.getElementById('btn-quick-add-today')?.addEventListener('click', () => openModal('modal-log-time'));
+
   // Navigation Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
