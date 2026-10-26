@@ -11,13 +11,36 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23E51A4C%22/><circle cx=%2232%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2268%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2250%22 cy=%2265%22 r=%229%22 fill=%22%23111%22/></svg>">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./app.css?v=8">
+  <link rel="stylesheet" href="./app.css?v=9">
 
   <!-- External CDNs: Chart.js & Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+
+  <!-- FULLPAGE DATABASE CONNECTING LOADING SCREEN -->
+  <div id="db-loading-screen" class="fullpage-loading-screen">
+    <div class="db-loader-content">
+      <div class="db-ladybug-yo-yo">
+        <div class="yo-yo-core">
+          <span class="yo-yo-spot s-center"></span>
+          <span class="yo-yo-spot s-top"></span>
+          <span class="yo-yo-spot s-bottom"></span>
+          <span class="yo-yo-spot s-left"></span>
+          <span class="yo-yo-spot s-right"></span>
+        </div>
+        <div class="yo-yo-pulse-ring"></div>
+        <div class="yo-yo-orbit-ring"></div>
+      </div>
+      <h2 class="db-loader-heading">Connecting to Database...</h2>
+      <p class="db-loader-desc">Awakening Tikki & Syncing Pragnya's ICSE Vault 🐞✨</p>
+      <div class="db-loader-bar-wrap">
+        <div class="db-loader-bar-fill"></div>
+      </div>
+      <div class="db-loader-hint">"Spots On! Every hour studied is an ICSE superpower unlocked!"</div>
+    </div>
+  </div>
 
   <div class="app-container">
     
@@ -51,19 +74,12 @@
           <i data-lucide="flame" style="width: 15px; height: 15px; color: var(--lb-red);"></i>
           <span id="streak-count">Start Streak Today! 🐞</span>
         </div>
-
-        <!-- Supabase Cloud Sync Status -->
-        <button class="supabase-status-btn" id="btn-open-settings" title="Supabase Database Settings">
-          <span class="status-dot connected" id="sync-dot"></span>
-          <span id="sync-status-label">Supabase Connected</span>
-          <i data-lucide="database" style="width: 14px; height: 14px;"></i>
-        </button>
       </div>
     </header>
 
     <!-- MOTIVATIONAL QUOTE BAR -->
     <section class="hero-banner" style="padding: 16px 24px; margin-bottom: 20px;">
-      <div class="hero-quote-box" style="max-width: 75%;">
+      <div class="hero-quote-box">
         <div class="hero-greeting" style="margin-bottom: 2px;">
           <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--cn-green);"></i>
           <span>Lucky Charm Daily Boost</span>
@@ -75,11 +91,11 @@
       </div>
 
       <div class="hero-cta-group">
-        <button class="btn btn-primary" id="btn-quick-log-session" style="padding: 8px 14px; font-size: 13px;">
+        <button class="btn btn-primary" id="btn-quick-log-session">
           <i data-lucide="plus-circle" style="width: 15px; height: 15px;"></i>
           Log Time
         </button>
-        <button class="btn btn-catnoir" id="btn-quick-log-marks" style="padding: 8px 14px; font-size: 13px;">
+        <button class="btn btn-catnoir" id="btn-quick-log-marks">
           <i data-lucide="award" style="width: 15px; height: 15px;"></i>
           Enter Marks
         </button>
@@ -90,15 +106,18 @@
     <nav class="tabs-navigation">
       <button class="tab-btn active" data-tab="timer">
         <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
-        Study Timer ("Spots On!")
+        <span class="tab-text-full">Study Timer ("Spots On!")</span>
+        <span class="tab-text-mobile">Timer</span>
       </button>
       <button class="tab-btn" data-tab="time-analytics">
         <i data-lucide="bar-chart-3" style="width: 16px; height: 16px;"></i>
-        Time Analytics (Subject & Day-wise)
+        <span class="tab-text-full">Time Analytics (Subject & Day-wise)</span>
+        <span class="tab-text-mobile">Analytics</span>
       </button>
       <button class="tab-btn" data-tab="mock-marks">
         <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-        Sample Paper Marks (Best of 5)
+        <span class="tab-text-full">Sample Paper Marks (Best of 5)</span>
+        <span class="tab-text-mobile">Test Marks</span>
       </button>
     </nav>
 
@@ -642,57 +661,6 @@
     </div>
   </div>
 
-  <!-- ==============================================================================
-       MODAL: DATABASE DETAILS & SQL SETUP MODAL
-       ============================================================================== -->
-  <div class="modal-overlay" id="modal-settings">
-    <div class="modal-content" style="max-width: 650px;">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <i data-lucide="database" style="color: var(--lb-red); width: 22px; height: 22px;"></i>
-          <h3 class="modal-title">Supabase Project Database</h3>
-        </div>
-        <button class="modal-close-btn" data-close="modal-settings"><i data-lucide="x"></i></button>
-      </div>
-      <div class="modal-body">
-        <div style="background: rgba(0, 245, 155, 0.1); border: 1px solid var(--border-green); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 12px;">
-          <div style="color: var(--cn-green); font-weight: 700; font-size: 14px; margin-bottom: 4px;">
-            ✓ Hardcoded & Connected to Supabase
-          </div>
-          <div style="font-size: 12px; color: var(--text-secondary);">
-            Project: <code style="color: #fff;">enumpbtztfcfjcpayszg.supabase.co</code>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <button class="btn btn-outline" id="btn-reset-local-data" style="color: #ff6b6b; border-color: rgba(255,107,107,0.3);">
-            <i data-lucide="trash-2"></i>
-            Clear All Local Data
-          </button>
-        </div>
-
-        <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 6px 0;" />
-
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <label class="form-label" style="margin-bottom: 0;">Supabase SQL Schema Script</label>
-            <button class="btn btn-outline" id="btn-copy-sql" style="padding: 4px 10px; font-size: 11px;">
-              <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
-              Copy SQL
-            </button>
-          </div>
-          <span style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
-            Run this in your Supabase SQL Editor once to create the tables & RLS policies:
-          </span>
-          <pre class="code-box" id="sql-display-box">-- Loading SQL Script...</pre>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-close="modal-settings">Close</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Wrapper -->
   <div id="toast" class="toast">
     <i data-lucide="check-circle" style="color: var(--cn-green);"></i>
@@ -700,6 +668,6 @@
   </div>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="./app.js?v=8"></script>
+  <script type="module" src="./app.js?v=9"></script>
 </body>
 </html>

@@ -11,11 +11,6 @@ import {
   fetchMockMarks,
   addMockMark,
   deleteMockMark,
-  isSupabaseConnected,
-  getSupabaseConfig,
-  saveSupabaseConfig,
-  clearSupabaseConfig,
-  testConnection,
   clearAllLocalData
 } from './supabase-client.js';
 import {
@@ -67,24 +62,38 @@ async function initDashboard() {
   if (isInitialized) return;
   isInitialized = true;
 
+  const loader = document.getElementById('db-loading-screen');
+  const dismissLoader = () => {
+    if (loader && !loader.classList.contains('fade-out')) {
+      loader.classList.add('fade-out');
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 500);
+    }
+  };
+
+  // Safe timeout: never trap the user even if network is offline or slow
+  setTimeout(dismissLoader, 4000);
+
   try {
     configureChartDefaults();
     populateDropdowns();
     setupEventListeners();
     setupTimer();
-    updateSyncStatusIndicator();
     displayRandomQuote();
     updateExamCountdown();
-    loadSqlSchemaDisplay();
 
-    // Render local initial state immediately so all UI is interactive
+    // Render initial empty or cached state
     renderActiveTabContent();
     safeCreateIcons();
 
-    // Fetch data asynchronously in the background
+    // Fetch and sync data directly from Supabase
     await refreshData();
   } catch (err) {
     console.error("Dashboard initialization error:", err);
+  } finally {
+    // Smoothly dismiss the fullpage loading screen once connected
+    setTimeout(dismissLoader, 400);
   }
 }
 
@@ -960,10 +969,6 @@ function setupEventListeners() {
   document.getElementById('btn-add-session-from-tab')?.addEventListener('click', () => openModal('modal-log-time'));
   document.getElementById('btn-quick-log-marks')?.addEventListener('click', () => openModal('modal-log-marks'));
   document.getElementById('btn-add-mark-from-tab')?.addEventListener('click', () => openModal('modal-log-marks'));
-  document.getElementById('btn-open-settings')?.addEventListener('click', () => {
-    loadSettingsModalValues();
-    openModal('modal-settings');
-  });
   document.getElementById('avatar-trigger')?.addEventListener('click', () => {
     displayRandomQuote();
     showToast("Ladybug Lucky Charm Activated! 🐞✨", true);
@@ -1111,72 +1116,6 @@ function setupEventListeners() {
     showToast("Pound it! 👊 Paper marks recorded!", true);
     await refreshData();
   });
-
-  // SUPABASE SETTINGS HANDLERS
-  document.getElementById('btn-save-supabase')?.addEventListener('click', async () => {
-    const url = document.getElementById('setting-supabase-url').value.trim();
-    const key = document.getElementById('setting-supabase-key').value.trim();
-    const statusMsg = document.getElementById('settings-status-msg');
-
-    if (!url || !key) {
-      statusMsg.style.display = 'block';
-      statusMsg.style.background = 'rgba(229, 26, 76, 0.2)';
-      statusMsg.style.color = '#FF85A1';
-      statusMsg.textContent = 'Please enter both Supabase URL and API Key.';
-      return;
-    }
-
-    statusMsg.style.display = 'block';
-    statusMsg.style.background = 'rgba(255, 209, 102, 0.15)';
-    statusMsg.style.color = 'var(--lucky-gold)';
-    statusMsg.textContent = 'Testing connection to Supabase project...';
-
-    const testRes = await testConnection(url, key);
-    if (testRes.success) {
-      saveSupabaseConfig(url, key);
-      statusMsg.style.background = 'rgba(0, 245, 155, 0.2)';
-      statusMsg.style.color = 'var(--cn-green)';
-      statusMsg.textContent = 'Connected successfully to Supabase! Syncing live data...';
-      updateSyncStatusIndicator();
-      showToast("Supabase Connected! 🐞✨", true);
-      setTimeout(async () => {
-        closeModal('modal-settings');
-        await refreshData();
-      }, 1200);
-    } else {
-      statusMsg.style.background = 'rgba(229, 26, 76, 0.2)';
-      statusMsg.style.color = '#FF85A1';
-      statusMsg.textContent = `Connection failed: ${testRes.error}`;
-    }
-  });
-
-  document.getElementById('btn-disconnect-supabase')?.addEventListener('click', async () => {
-    if (confirm("Disconnect Supabase and switch back to local storage?")) {
-      clearSupabaseConfig();
-      updateSyncStatusIndicator();
-      loadSettingsModalValues();
-      showToast("Switched to Local Storage Mode", false);
-      await refreshData();
-    }
-  });
-
-  const handleResetData = async () => {
-    if (confirm("Clear all local study logs and test marks?")) {
-      clearAllLocalData();
-      showToast("Cleared local data! Ready for new entries.", true);
-      await refreshData();
-    }
-  };
-  document.getElementById('btn-reset-local-data')?.addEventListener('click', handleResetData);
-  document.getElementById('btn-reset-demo-data')?.addEventListener('click', handleResetData);
-
-  document.getElementById('btn-copy-sql')?.addEventListener('click', () => {
-    const code = document.getElementById('sql-display-box')?.textContent;
-    if (code) {
-      navigator.clipboard.writeText(code);
-      showToast("SQL Schema copied to clipboard!", true);
-    }
-  });
 }
 
 function openModal(id) {
@@ -1187,48 +1126,6 @@ function openModal(id) {
 function closeModal(id) {
   const modal = document.getElementById(id);
   if (modal) modal.classList.remove('open');
-}
-
-function updateSyncStatusIndicator() {
-  const dot = document.getElementById('sync-dot');
-  const label = document.getElementById('sync-status-label');
-  const connected = isSupabaseConnected();
-
-  if (connected) {
-    if (dot) {
-      dot.className = 'status-dot connected';
-    }
-    if (label) label.textContent = 'Supabase Connected';
-  } else {
-    if (dot) {
-      dot.className = 'status-dot local';
-    }
-    if (label) label.textContent = 'Local Storage Mode';
-  }
-}
-
-function loadSettingsModalValues() {
-  const config = getSupabaseConfig();
-  const urlInp = document.getElementById('setting-supabase-url');
-  const keyInp = document.getElementById('setting-supabase-key');
-  const statusMsg = document.getElementById('settings-status-msg');
-
-  if (urlInp) urlInp.value = config.url || '';
-  if (keyInp) keyInp.value = config.key || '';
-  if (statusMsg) statusMsg.style.display = 'none';
-}
-
-async function loadSqlSchemaDisplay() {
-  try {
-    const res = await fetch('./supabase_schema.sql');
-    if (res.ok) {
-      const sql = await res.text();
-      const codeBox = document.getElementById('sql-display-box');
-      if (codeBox) codeBox.textContent = sql;
-    }
-  } catch (e) {
-    console.warn("Could not load supabase_schema.sql into UI", e);
-  }
 }
 
 // Toast Notification
