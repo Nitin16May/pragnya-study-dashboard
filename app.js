@@ -36,6 +36,9 @@ const state = {
   timer: {
     isRunning: false,
     seconds: 0,
+    initialSeconds: 0,
+    elapsedSeconds: 0,
+    mode: 'stopwatch',
     intervalId: null,
     subject: ICSE_SUBJECTS[0].name,
     topic: ''
@@ -311,7 +314,10 @@ function updateKPIs() {
   if (kpiHighestScoreElem) kpiHighestScoreElem.textContent = countMarks > 0 ? `${highestMarkPct.toFixed(1)}%` : '0%';
 
   const kpiHighestSubjectElem = document.getElementById('kpi-highest-subject');
-  if (kpiHighestSubjectElem) kpiHighestSubjectElem.textContent = countMarks > 0 ? `Best: ${highestSubject}` : 'Awaiting first test paper';
+  if (kpiHighestSubjectElem) {
+    const cleanHighest = highestSubject.replace(' (Optional)', '');
+    kpiHighestSubjectElem.textContent = countMarks > 0 ? `Best: ${cleanHighest}` : 'Awaiting first test paper';
+  }
 
   // 4. Top Focus Subject
   const subjectTotals = {};
@@ -329,7 +335,12 @@ function updateKPIs() {
   });
 
   const kpiTopSubjectElem = document.getElementById('kpi-top-subject');
-  if (kpiTopSubjectElem) kpiTopSubjectElem.textContent = topSubject;
+  if (kpiTopSubjectElem) {
+    let displayTopSubject = topSubject.replace(' (Optional)', '');
+    if (displayTopSubject === 'Computer Applications') displayTopSubject = 'Comp Applications';
+    kpiTopSubjectElem.textContent = displayTopSubject;
+    kpiTopSubjectElem.title = topSubject;
+  }
 
   const kpiTopSubjectHoursElem = document.getElementById('kpi-top-subject-hours');
   if (kpiTopSubjectHoursElem) {
@@ -382,7 +393,7 @@ function updateExamCountdown() {
   const countdownText = document.getElementById('countdown-text');
   if (countdownText) {
     if (diffDays > 0) {
-      countdownText.textContent = `${diffDays} Days to ICSE Boards`;
+      countdownText.textContent = `${diffDays} Days to Boards`;
     } else {
       countdownText.textContent = `Board Exams In Progress! 🐞`;
     }
@@ -863,8 +874,27 @@ function setupTimer() {
       activeLabel.textContent = `Studying ${sub}`;
 
       state.timer.intervalId = setInterval(() => {
-        state.timer.seconds++;
-        updateDisplay();
+        if (state.timer.mode === 'countdown') {
+          if (state.timer.seconds > 0) {
+            state.timer.seconds--;
+            state.timer.elapsedSeconds++;
+            updateDisplay();
+          } else {
+            // Countdown reached 0
+            clearInterval(state.timer.intervalId);
+            state.timer.isRunning = false;
+            toggleText.textContent = 'Spots On! (Start)';
+            toggleIcon.setAttribute('data-lucide', 'play');
+            yoyoIcon.classList.remove('active');
+            activeLabel.textContent = '🎉 Focus Goal Completed!';
+            showToast('Spots On! Focus session completed! Pound it! 👊');
+            safeCreateIcons();
+          }
+        } else {
+          state.timer.seconds++;
+          state.timer.elapsedSeconds++;
+          updateDisplay();
+        }
       }, 1000);
     }
     safeCreateIcons();
@@ -873,7 +903,8 @@ function setupTimer() {
   resetBtn.addEventListener('click', () => {
     clearInterval(state.timer.intervalId);
     state.timer.isRunning = false;
-    state.timer.seconds = 0;
+    state.timer.seconds = state.timer.mode === 'countdown' ? state.timer.initialSeconds : 0;
+    state.timer.elapsedSeconds = 0;
     updateDisplay();
     toggleText.textContent = 'Spots On! (Start)';
     toggleIcon.setAttribute('data-lucide', 'play');
@@ -884,7 +915,8 @@ function setupTimer() {
   });
 
   saveBtn.addEventListener('click', () => {
-    const elapsedMinutes = Math.max(Math.round(state.timer.seconds / 60), 1);
+    const totalElapsedSecs = state.timer.mode === 'countdown' ? state.timer.elapsedSeconds : state.timer.seconds;
+    const elapsedMinutes = Math.max(Math.round(totalElapsedSecs / 60), 1);
     
     // Pause timer
     if (state.timer.isRunning) {
@@ -928,10 +960,16 @@ function setupTimer() {
       yoyoIcon.classList.remove('active');
 
       if (preset === 'stopwatch') {
+        state.timer.mode = 'stopwatch';
         state.timer.seconds = 0;
+        state.timer.initialSeconds = 0;
+        state.timer.elapsedSeconds = 0;
       } else {
         const mins = Number(preset);
+        state.timer.mode = 'countdown';
         state.timer.seconds = mins * 60;
+        state.timer.initialSeconds = mins * 60;
+        state.timer.elapsedSeconds = 0;
       }
       updateDisplay();
       safeCreateIcons();

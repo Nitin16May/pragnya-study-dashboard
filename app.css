@@ -468,21 +468,112 @@ body {
   }
 }
 
+.timer-yoyo-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 14px;
+  background: radial-gradient(circle at 35% 35%, #ff2e63 0%, #c4083a 70%, #6d001e 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(229, 26, 76, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timer-yoyo-icon i {
+  color: #fff;
+  width: 36px;
+  height: 36px;
+}
+
+.timer-yoyo-icon.active {
+  animation: ladybugYoyoSpin 3s linear infinite, ladybugYoyoBob 1.5s ease-in-out infinite alternate;
+  box-shadow: 0 0 35px rgba(229, 26, 76, 0.75), 0 0 15px rgba(0, 245, 155, 0.5), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+}
+
+.timer-subject-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: rgba(229, 26, 76, 0.12);
+  border: 1px solid rgba(229, 26, 76, 0.3);
+  border-radius: var(--radius-full);
+  color: #ff6b8b;
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 90%;
+  margin: 0 auto 20px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .focus-timer-inputs {
   display: flex;
   gap: 14px;
   width: 100%;
-  max-width: 580px;
-  margin-bottom: 24px;
+  max-width: 600px;
+  margin: 0 auto 24px;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.focus-timer-inputs .timer-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.focus-timer-inputs .timer-input {
+  flex: 2;
+  min-width: 250px;
+  padding: 12px 16px;
+  font-size: 14px;
 }
 
 .focus-timer-controls {
   display: flex;
   gap: 14px;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#timer-toggle-btn {
+  padding: 12px 28px;
+  font-size: 16px;
+}
+
+#timer-reset-btn {
+  padding: 12px 18px;
+}
+
+#timer-save-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.scorecard-aggregate-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  background: rgba(0, 245, 155, 0.12);
+  border: 1px solid var(--border-green);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+}
+
+#icse-board-subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
 }
 
 /* ==============================================================================
@@ -902,7 +993,8 @@ body {
 }
 
 .table-filters select,
-.timer-select {
+.timer-select,
+.timer-input {
   background: var(--bg-input);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
@@ -913,12 +1005,12 @@ body {
   outline: none;
   max-width: 100%;
   box-sizing: border-box;
-  cursor: pointer;
   transition: border-color 0.15s ease;
 }
 
 .table-filters select:focus,
-.timer-select:focus {
+.timer-select:focus,
+.timer-input:focus {
   border-color: var(--lb-red);
 }
 
@@ -1271,10 +1363,21 @@ body {
 
   .countdown-chip, .streak-chip {
     flex: 1;
+    min-width: 0;
     justify-content: center;
     font-size: 11px;
-    padding: 7px 10px;
+    padding: 7px 8px;
+    overflow: hidden;
+  }
+
+  .countdown-chip span, .streak-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  svg, .lucide {
+    flex-shrink: 0;
   }
 
   /* Hero Banner */
@@ -1351,16 +1454,19 @@ body {
     margin-bottom: 20px;
   }
 
-  .preset-pills-row {
+  .focus-preset-pills {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
+    width: 100%;
   }
 
   .preset-pill-btn {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 7px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    text-align: center;
   }
 
   .focus-timer-digits {
@@ -1377,29 +1483,44 @@ body {
     margin-bottom: 20px;
   }
 
-  .timer-select-wrap,
-  .timer-topic-wrap {
-    width: 100%;
+  .focus-timer-inputs select,
+  .focus-timer-inputs input {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    font-size: 16px !important; /* Prevents auto-zoom in mobile Safari */
   }
 
   .focus-timer-controls {
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
   }
 
   #timer-toggle-btn {
-    width: 100%;
+    width: 100% !important;
     min-height: 48px;
     font-size: 15px;
     justify-content: center;
+    order: 1;
   }
 
-  .focus-timer-controls > .btn:not(#timer-toggle-btn) {
-    flex: 1;
+  #timer-reset-btn {
+    flex: 0 0 52px !important;
     min-height: 44px;
     justify-content: center;
+    order: 2;
+    padding: 10px;
+  }
+
+  #timer-save-btn {
+    flex: 1 !important;
+    min-height: 44px;
+    justify-content: center;
+    order: 3;
+    font-size: 14px;
+    padding: 10px 14px;
   }
 
   /* Stats Grid (KPI Cards) */
@@ -1411,14 +1532,22 @@ body {
 
   .stat-card {
     padding: 14px 12px;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .stat-value {
     font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .stat-footer {
     font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Charts */
@@ -1451,6 +1580,12 @@ body {
   .icse-scorecard-card {
     padding: 16px 14px;
     margin-bottom: 20px;
+  }
+
+  .scorecard-aggregate-badge {
+    width: 100%;
+    justify-content: space-between;
+    box-sizing: border-box;
   }
 
   #icse-board-subjects-grid {
@@ -1544,6 +1679,23 @@ body {
     min-height: 44px;
   }
 
+  .quick-duration-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .duration-pill {
+    flex: 1 1 calc(33.33% - 6px);
+    text-align: center;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
   .modal-footer {
     flex-direction: column-reverse;
     gap: 8px;
@@ -1578,5 +1730,10 @@ body {
 
   .focus-timer-digits {
     font-size: 36px;
+  }
+
+  .preset-pill-btn {
+    font-size: 10.5px;
+    padding: 6px 8px;
   }
 }

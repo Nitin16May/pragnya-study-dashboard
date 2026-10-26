@@ -11,7 +11,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%23E51A4C%22/><circle cx=%2232%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2268%22 cy=%2235%22 r=%229%22 fill=%22%23111%22/><circle cx=%2250%22 cy=%2265%22 r=%229%22 fill=%22%23111%22/></svg>">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./app.css?v=10">
+  <link rel="stylesheet" href="./app.css?v=11">
 
   <!-- External CDNs: Chart.js & Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -78,16 +78,16 @@
     </header>
 
     <!-- MOTIVATIONAL QUOTE BAR -->
-    <section class="hero-banner" style="padding: 16px 24px; margin-bottom: 20px;">
+    <section class="hero-banner">
       <div class="hero-quote-box">
-        <div class="hero-greeting" style="margin-bottom: 2px;">
+        <div class="hero-greeting">
           <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--cn-green);"></i>
           <span>Lucky Charm Daily Boost</span>
         </div>
-        <div class="hero-quote" id="hero-quote-text" style="font-size: 16px; margin-bottom: 2px;">
+        <div class="hero-quote" id="hero-quote-text">
           "Spots on, Pragnya! Every hour studied is a superpower unlocked!"
         </div>
-        <div class="hero-author" id="hero-quote-author" style="font-size: 12px;">— Ladybug (Marinette)</div>
+        <div class="hero-author" id="hero-quote-author">— Ladybug (Marinette)</div>
       </div>
 
       <div class="hero-cta-group">
@@ -137,36 +137,36 @@
         </div>
 
         <!-- Yo-Yo Icon -->
-        <div class="timer-yoyo-icon" id="yoyo-icon" style="width: 80px; height: 80px;">
-          <i data-lucide="sparkles" style="color: #fff; width: 38px; height: 38px;"></i>
+        <div class="timer-yoyo-icon" id="yoyo-icon">
+          <i data-lucide="sparkles"></i>
         </div>
 
         <!-- Big Timer Digits -->
         <div class="focus-timer-digits" id="timer-display">00:00:00</div>
         
-        <div class="timer-subject-pill" id="timer-active-label" style="margin-bottom: 20px;">
+        <div class="timer-subject-pill" id="timer-active-label">
           Ready for Study Session
         </div>
 
         <!-- Inputs -->
         <div class="focus-timer-inputs">
-          <select id="timer-subject-select" class="timer-select" style="flex: 1; min-width: 220px; padding: 12px 16px; font-size: 14px;">
+          <select id="timer-subject-select" class="timer-select">
             <!-- Populated dynamically with ICSE subjects -->
           </select>
-          <input type="text" id="timer-topic-input" class="timer-input" style="flex: 2; min-width: 260px; padding: 12px 16px; font-size: 14px;" placeholder="Chapter / Topic (e.g. ML Aggarwal Circles, Java Arrays)..." />
+          <input type="text" id="timer-topic-input" class="timer-input" placeholder="Chapter / Topic (e.g. ML Aggarwal Circles, Java Arrays)..." />
         </div>
 
         <!-- Controls -->
         <div class="focus-timer-controls">
-          <button class="btn btn-primary" id="timer-toggle-btn" style="padding: 12px 28px; font-size: 16px;">
-            <i data-lucide="play" id="timer-toggle-icon" style="width: 18px; height: 18px;"></i>
+          <button class="btn btn-primary" id="timer-toggle-btn">
+            <i data-lucide="play" id="timer-toggle-icon"></i>
             <span id="timer-toggle-text">Spots On! (Start)</span>
           </button>
-          <button class="btn btn-secondary" id="timer-reset-btn" style="padding: 12px 18px;" title="Reset Timer">
-            <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i>
+          <button class="btn btn-secondary" id="timer-reset-btn" title="Reset Timer">
+            <i data-lucide="rotate-ccw"></i>
           </button>
-          <button class="btn btn-catnoir" id="timer-save-btn" style="padding: 12px 24px; font-size: 16px;" disabled>
-            <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+          <button class="btn btn-catnoir" id="timer-save-btn" disabled>
+            <i data-lucide="check-circle"></i>
             Complete & Save Session
           </button>
         </div>
@@ -258,7 +258,7 @@
             <span class="stat-title">Top Focus Subject</span>
             <div class="stat-icon gold"><i data-lucide="star" style="width: 18px; height: 18px;"></i></div>
           </div>
-          <div class="stat-value" id="kpi-top-subject" style="font-size: 20px;">None yet</div>
+          <div class="stat-value" id="kpi-top-subject">None yet</div>
           <div class="stat-footer">
             <span id="kpi-top-subject-hours">0h logged</span>
           </div>
@@ -404,7 +404,7 @@
       </div>
 
       <!-- ICSE 10TH BOARD PROJECTED SCORECARD (BEST OF 5) -->
-      <div class="table-card" style="border: 1px solid var(--border-green); background: linear-gradient(145deg, rgba(21, 24, 36, 0.95) 0%, rgba(0, 245, 155, 0.05) 100%);">
+      <div class="table-card icse-scorecard-card" style="border: 1px solid var(--border-green); background: linear-gradient(145deg, rgba(21, 24, 36, 0.95) 0%, rgba(0, 245, 155, 0.05) 100%);">
         <div class="table-toolbar">
           <div class="chart-title-group">
             <h3 class="chart-title" style="display: flex; align-items: center; gap: 8px;">
@@ -415,13 +415,13 @@
               Official CISCE Rule: English (compulsory) + Best 4 subjects (Math, Science, HCG, Hindi, Computer Applications Optional)
             </span>
           </div>
-          <div style="display: flex; align-items: baseline; gap: 8px; background: rgba(0, 245, 155, 0.12); border: 1px solid var(--border-green); padding: 8px 16px; border-radius: var(--radius-md);">
+          <div class="scorecard-aggregate-badge">
             <span style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Projected ICSE Board:</span>
             <span id="icse-best5-score" style="font-family: var(--font-hero); font-size: 26px; font-weight: 700; color: var(--cn-green);">0.0%</span>
           </div>
         </div>
 
-        <div id="icse-board-subjects-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px;">
+        <div id="icse-board-subjects-grid">
           <!-- Populated dynamically via JS -->
         </div>
       </div>
@@ -668,6 +668,6 @@
   </div>
 
   <!-- Main ES Module Script -->
-  <script type="module" src="./app.js?v=10"></script>
+  <script type="module" src="./app.js?v=11"></script>
 </body>
 </html>
