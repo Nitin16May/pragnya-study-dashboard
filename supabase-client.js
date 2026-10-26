@@ -16,19 +16,33 @@ const STORAGE_KEYS = {
 // Seed local storage with clean slate (and purge old sample/demo mock data if present)
 function initializeLocalStorage() {
   localStorage.removeItem('PRAGNYA_DEMO_PREVIEW');
-  const cachedSessions = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
-  if (cachedSessions && (cachedSessions.includes('"demo-') || cachedSessions.includes('"sample-'))) {
+  localStorage.removeItem('pragnya_demo_data');
+
+  // Purge any demo sessions from local cache
+  try {
+    const rawSessions = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
+    if (rawSessions) {
+      const arr = JSON.parse(rawSessions);
+      const clean = Array.isArray(arr) ? arr.filter(s => s && s.id && !String(s.id).startsWith('demo-') && !String(s.id).startsWith('sample-')) : [];
+      localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(clean));
+    } else {
+      localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
+    }
+  } catch (e) {
     localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
-  }
-  const cachedMarks = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
-  if (cachedMarks && (cachedMarks.includes('"demo-mock-') || cachedMarks.includes('CISCE Specimen Paper 2026') || cachedMarks.includes('"sample-'))) {
-    localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
   }
 
-  if (!localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS)) {
-    localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS)) {
+  // Purge any demo marks from local cache
+  try {
+    const rawMarks = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
+    if (rawMarks) {
+      const arr = JSON.parse(rawMarks);
+      const clean = Array.isArray(arr) ? arr.filter(m => m && m.id && !String(m.id).startsWith('demo-') && !String(m.id).startsWith('sample-') && !String(m.paper_name || '').includes('CISCE Specimen Paper 2026')) : [];
+      localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(clean));
+    } else {
+      localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
+    }
+  } catch (e) {
     localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
   }
 }

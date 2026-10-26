@@ -102,8 +102,8 @@ async function refreshData() {
       fetchStudySessions(),
       fetchMockMarks()
     ]);
-    state.sessions = sessionsData || [];
-    state.mockMarks = marksData || [];
+    state.sessions = (sessionsData || []).filter(s => s && s.id && !String(s.id).startsWith('demo-') && !String(s.id).startsWith('sample-'));
+    state.mockMarks = (marksData || []).filter(m => m && m.id && !String(m.id).startsWith('demo-') && !String(m.id).startsWith('sample-') && !String(m.paper_name || '').includes('CISCE Specimen Paper 2026'));
 
     updateKPIs();
     renderActiveTabContent();
