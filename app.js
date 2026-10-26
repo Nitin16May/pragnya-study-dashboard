@@ -16,7 +16,7 @@ import {
   saveSupabaseConfig,
   clearSupabaseConfig,
   testConnection,
-  resetToSampleData
+  clearAllLocalData
 } from './supabase-client.js';
 import {
   configureChartDefaults,
@@ -250,7 +250,10 @@ function updateKPIs() {
 
   const kpiMarksGradeElem = document.getElementById('kpi-marks-grade');
   if (kpiMarksGradeElem) {
-    if (avgPct >= 90) {
+    if (countMarks === 0) {
+      kpiMarksGradeElem.textContent = 'No test papers yet';
+      kpiMarksGradeElem.style.color = 'var(--text-muted)';
+    } else if (avgPct >= 90) {
       kpiMarksGradeElem.textContent = '🌟 ICSE Distinction Grade';
       kpiMarksGradeElem.style.color = 'var(--cn-green)';
     } else if (avgPct >= 75) {
@@ -267,10 +270,10 @@ function updateKPIs() {
   if (kpiPapersElem) kpiPapersElem.textContent = countMarks;
 
   const kpiHighestScoreElem = document.getElementById('kpi-highest-score');
-  if (kpiHighestScoreElem) kpiHighestScoreElem.textContent = `${highestMarkPct.toFixed(1)}%`;
+  if (kpiHighestScoreElem) kpiHighestScoreElem.textContent = countMarks > 0 ? `${highestMarkPct.toFixed(1)}%` : '0%';
 
   const kpiHighestSubjectElem = document.getElementById('kpi-highest-subject');
-  if (kpiHighestSubjectElem) kpiHighestSubjectElem.textContent = `Best: ${highestSubject}`;
+  if (kpiHighestSubjectElem) kpiHighestSubjectElem.textContent = countMarks > 0 ? `Best: ${highestSubject}` : 'Awaiting first test paper';
 
   // 4. Top Focus Subject
   const subjectTotals = {};
@@ -278,7 +281,7 @@ function updateKPIs() {
     subjectTotals[sess.subject] = (subjectTotals[sess.subject] || 0) + (Number(sess.duration_minutes) || 0);
   });
 
-  let topSubject = 'Mathematics';
+  let topSubject = 'None yet';
   let maxMinutes = 0;
   Object.entries(subjectTotals).forEach(([sub, mins]) => {
     if (mins > maxMinutes) {
@@ -292,7 +295,7 @@ function updateKPIs() {
 
   const kpiTopSubjectHoursElem = document.getElementById('kpi-top-subject-hours');
   if (kpiTopSubjectHoursElem) {
-    kpiTopSubjectHoursElem.textContent = `${(maxMinutes / 60).toFixed(1)}h logged total`;
+    kpiTopSubjectHoursElem.textContent = maxMinutes > 0 ? `${(maxMinutes / 60).toFixed(1)}h logged total` : '0h logged';
   }
 
   // 5. Active Study Streak Calculation
@@ -396,6 +399,38 @@ function renderIcseBoardScorecard() {
   const overallBadge = document.getElementById('icse-best5-score');
   if (!container || !overallBadge) return;
 
+  if (state.mockMarks.length === 0) {
+    overallBadge.textContent = '0.0%';
+    const emptySubjects = [
+      { name: 'English (Compulsory)', group: 'Lang + Lit Combined', icon: 'file-text', color: '#5F27CD', isCompulsory: true },
+      { name: 'Mathematics', group: 'Group II', icon: 'calculator', color: '#E51A4C' },
+      { name: 'Science', group: 'Phy + Chem + Bio', icon: 'flask-conical', color: '#00D2D3' },
+      { name: 'H.C.G.', group: 'Hist/Civ + Geo', icon: 'landmark', color: '#EE5253' },
+      { name: 'Second Language (Hindi)', group: 'Group I', icon: 'languages', color: '#FF6B6B' },
+      { name: 'Computer Applications', group: 'Group III Optional (Pragnya)', icon: 'terminal', color: '#00F59B' }
+    ];
+
+    container.innerHTML = emptySubjects.map(sub => `
+      <div style="background: var(--bg-card); border-radius: var(--radius-md); padding: 14px; border: 1px dashed var(--border-subtle); display: flex; flex-direction: column; justify-content: space-between; gap: 8px; opacity: 0.8;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(sub.group)}</div>
+          </div>
+          <i data-lucide="${sub.icon}" style="color: ${sub.color}; width: 16px; height: 16px;"></i>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+          <div style="font-family: var(--font-hero); font-size: 20px; font-weight: 700; color: var(--text-muted);">
+            --%
+          </div>
+          <div><span style="color: var(--text-muted); font-size: 11px; font-weight: 600;">Awaiting Test</span></div>
+        </div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+    return;
+  }
+
   function getAvgPctFor(subjectNames) {
     const list = state.mockMarks.filter(m => 
       subjectNames.some(name => m.subject.toLowerCase().includes(name.toLowerCase()))
@@ -408,7 +443,7 @@ function renderIcseBoardScorecard() {
   // 1. English (Compulsory - Paper 1 & Paper 2 combined)
   const engLang = getAvgPctFor(['English Language']);
   const engLit = getAvgPctFor(['English Literature']);
-  let engScore = 90.0;
+  let engScore = 0;
   if (engLang !== null && engLit !== null) {
     engScore = Number(((engLang + engLit) / 2).toFixed(1));
   } else if (engLang !== null) {
@@ -418,12 +453,12 @@ function renderIcseBoardScorecard() {
   }
 
   // 2. Second Language (Hindi)
-  const hindiScore = getAvgPctFor(['Hindi']) ?? 88.0;
+  const hindiScore = getAvgPctFor(['Hindi']) ?? 0;
 
   // 3. H.C.G. (History & Civics + Geography)
   const histScore = getAvgPctFor(['History & Civics']);
   const geoScore = getAvgPctFor(['Geography']);
-  let hcgScore = 92.0;
+  let hcgScore = 0;
   if (histScore !== null && geoScore !== null) {
     hcgScore = Number(((histScore + geoScore) / 2).toFixed(1));
   } else if (histScore !== null) {
@@ -439,13 +474,13 @@ function renderIcseBoardScorecard() {
   const sciScores = [phyScore, chemScore, bioScore].filter(s => s !== null);
   let scienceScore = sciScores.length > 0
     ? Number((sciScores.reduce((a, b) => a + b, 0) / sciScores.length).toFixed(1))
-    : 90.5;
+    : 0;
 
   // 5. Mathematics
-  const mathScore = getAvgPctFor(['Mathematics']) ?? 92.5;
+  const mathScore = getAvgPctFor(['Mathematics']) ?? 0;
 
   // 6. Computer Applications (Group III Optional Elective)
-  const compScore = getAvgPctFor(['Computer Applications']) ?? 96.0;
+  const compScore = getAvgPctFor(['Computer Applications']) ?? 0;
 
   // 5 Non-English subjects for Best 4 selection:
   const electivePool = [
@@ -495,6 +530,24 @@ function renderIcseBoardScorecard() {
     return `
       <div style="background: var(--bg-card); border-radius: var(--radius-md); padding: 14px; ${cardBorder} display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(sub.group)}</div>
+          </div>
+          <i data-lucide="${sub.icon}" style="color: ${sub.color}; width: 16px; height: 16px;"></i>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+          <div style="font-family: var(--font-hero); font-size: 22px; font-weight: 700; color: ${sub.color};">
+            ${sub.score}%
+          </div>
+          <div>${statusBadge}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  lucide.createIcons();
+}
           <div>
             <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(sub.name)}</div>
             <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(sub.group)}</div>
@@ -1074,9 +1127,9 @@ function setupEventListeners() {
   });
 
   document.getElementById('btn-reset-demo-data')?.addEventListener('click', async () => {
-    if (confirm("Reset to initial ICSE sample data? (This restores default sample sessions & marks).")) {
-      resetToSampleData();
-      showToast("Reset to sample ICSE data!", true);
+    if (confirm("Clear all local study logs and mock marks?")) {
+      clearAllLocalData();
+      showToast("Cleared local data! Ready for new entries.", true);
       await refreshData();
     }
   });

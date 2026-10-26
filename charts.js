@@ -326,6 +326,35 @@ export function renderMockMarksProgressChart(canvasId, mockMarks, selectedSubjec
   // Sort ascending by date
   filtered.sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
 
+  if (filtered.length === 0) {
+    activeCharts[canvasId] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: ['No Tests Logged Yet'],
+        datasets: [{
+          label: '90% ICSE Distinction Target',
+          data: [90],
+          borderColor: '#00F59B',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { color: '#cbd5e1' } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+          y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', callback: v => `${v}%` } }
+        }
+      }
+    });
+    return;
+  }
+
   const labels = filtered.map(m => {
     const d = new Date(m.test_date + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -441,6 +470,32 @@ export function renderSubjectScoreComparisonChart(canvasId, mockMarks) {
 
   const avgPercentages = subjects.map(s => Number((subjectScores[s].total / subjectScores[s].count).toFixed(1)));
   const colors = subjects.map(s => getSubjectColor(s));
+
+  if (subjects.length === 0) {
+    activeCharts[canvasId] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ['No Papers Logged Yet'],
+        datasets: [{
+          label: 'Average Score %',
+          data: [0],
+          backgroundColor: '#334155',
+          borderRadius: 5
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', callback: v => `${v}%` } },
+          y: { grid: { display: false }, ticks: { color: '#e2e8f0' } }
+        }
+      }
+    });
+    return;
+  }
 
   activeCharts[canvasId] = new Chart(canvas, {
     type: 'bar',

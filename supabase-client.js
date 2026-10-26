@@ -2,7 +2,9 @@
 // SUPABASE CLIENT INTEGRATION - PRAGNYA ICSE STUDY TRACKER
 // ==============================================================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { SAMPLE_STUDY_SESSIONS, SAMPLE_MOCK_MARKS } from './data.js';
+
+export const DEFAULT_SUPABASE_URL = 'https://enumpbtztfcfjcpayszg.supabase.co';
+export const DEFAULT_SUPABASE_KEY = 'sb_publishable_GZlP1B3UaxB9dG1zf62MuA_csF4SmDE';
 
 const STORAGE_KEYS = {
   URL: 'pragnya_study_supabase_url',
@@ -12,19 +14,28 @@ const STORAGE_KEYS = {
   ACTIVE_TIMER: 'pragnya_active_study_timer'
 };
 
-// Seed local storage with initial sample data if empty
+// Seed local storage with clean slate (and purge old sample mock data if present)
 function initializeLocalStorage() {
+  const cachedSessions = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
+  if (cachedSessions && cachedSessions.includes('"sample-')) {
+    localStorage.removeItem(STORAGE_KEYS.LOCAL_SESSIONS);
+  }
+  const cachedMarks = localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS);
+  if (cachedMarks && cachedMarks.includes('"mock-')) {
+    localStorage.removeItem(STORAGE_KEYS.LOCAL_MARKS);
+  }
+
   if (!localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS)) {
-    localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(SAMPLE_STUDY_SESSIONS));
+    localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
   }
   if (!localStorage.getItem(STORAGE_KEYS.LOCAL_MARKS)) {
-    localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(SAMPLE_MOCK_MARKS));
+    localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
   }
 }
 initializeLocalStorage();
 
-export let supabaseUrl = localStorage.getItem(STORAGE_KEYS.URL) || '';
-export let supabaseKey = localStorage.getItem(STORAGE_KEYS.KEY) || '';
+export let supabaseUrl = localStorage.getItem(STORAGE_KEYS.URL) || DEFAULT_SUPABASE_URL;
+export let supabaseKey = localStorage.getItem(STORAGE_KEYS.KEY) || DEFAULT_SUPABASE_KEY;
 export let supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 export function isSupabaseConnected() {
@@ -117,7 +128,7 @@ export async function fetchStudySessions() {
 
   // Fallback to local storage
   const localData = localStorage.getItem(STORAGE_KEYS.LOCAL_SESSIONS);
-  return localData ? JSON.parse(localData) : SAMPLE_STUDY_SESSIONS;
+  return localData ? JSON.parse(localData) : [];
 }
 
 export async function addStudySession(session) {
@@ -288,8 +299,9 @@ function getLocalMarks() {
   return localData ? JSON.parse(localData) : [];
 }
 
-// Reset data back to initial sample state
-export function resetToSampleData() {
-  localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify(SAMPLE_STUDY_SESSIONS));
-  localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify(SAMPLE_MOCK_MARKS));
+// Reset / Clear local data
+export function clearAllLocalData() {
+  localStorage.setItem(STORAGE_KEYS.LOCAL_SESSIONS, JSON.stringify([]));
+  localStorage.setItem(STORAGE_KEYS.LOCAL_MARKS, JSON.stringify([]));
+}
 }
